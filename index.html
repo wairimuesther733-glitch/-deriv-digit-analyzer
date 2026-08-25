@@ -322,13 +322,21 @@ function startAnalyzer() {
         }
     };
 
-    websocket.onerror = function() {
-        updateStatus("WebSocket error");
-    };
+    websocket.onerror = function(event) {
+    updateStatus("WebSocket ERROR - connection failed");
+    console.error("WebSocket error:", event);
+};
 
-    websocket.onclose = function() {
-        updateStatus("Disconnected");
-    };
+websocket.onclose = function(event) {
+    updateStatus(
+        "Closed - code " + event.code
+    );
+    console.log(
+        "WebSocket closed:",
+        event.code,
+        event.reason
+    );
+};
 }
 
 
