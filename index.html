@@ -427,6 +427,287 @@ function displayDigits(counts) {
     });
 
 }
+<script>
+
+let websocket = null;
+let digits = [];
+
+const DEFAULT_SAMPLE = 250;
+
+function startAnalyzer() {
+
+    if (websocket) {
+        websocket.close();
+    }
+
+    digits = [];
+
+    updateStatus("Connecting...");
+
+    const symbol = document.getElementById("symbol").value;
+    const sample = Number(document.getElementById("sample").value) || DEFAULT_SAMPLE;
+
+    websocket = new WebSocket(
+        "wss://ws.binaryws.com/websockets/v3"
+    );
+
+    websocket.onopen = function () {
+
+        updateStatus("Connected - loading data...");
+
+        // First get historical ticks.
+        websocket.send(JSON.stringify({
+            ticks_history: symbol,
+            end: "latest",
+            count: sample,
+            style: "ticks",
+            req_id: 1
+        }));
+
+        // Then subscribe to new ticks.
+        websocket.send(JSON.stringify({
+            ticks: symbol,
+            subscribe: 1,
+            req_id: 2
+        }));
+    };
+
+    websocket.onmessage = function(event) {
+
+        const data = JSON.parse(event.data);
+
+        console.log("Deriv response:", data);
+
+        // Show API errors instead of silently failing.
+        if (data.error) {
+            updateStatus("API error: " + data.error.message);
+            return;
+        }
+
+        // Historical tick response.
+        if (data.msg_type === "history" && data.history) {
+
+            const prices = data.history.prices || [];
+
+            digits = prices.map(function(price) {
+                return getLastDigit(price);
+            });
+
+            if (digits.length > sample) {
+                digits = digits.slice(-sample);
+            }
+
+            analyze();
+
+            updateStatus(
+                "Connected - " + digits.length + " historical ticks"
+            );
+
+            return;
+        }
+
+        // Live tick response.
+        if (data.msg_type === "tick" && data.tick) {
+
+            const digit = getLastDigit(data.tick.quote);
+
+            digits.push(digit);
+
+            if (digits.length > sample) {
+                digits.shift();
+            }
+
+            analyze();
+
+            updateStatus("LIVE - receiving ticks");
+
+            return;
+        }
+    };
+
+    websocket.onerror = function() {
+        updateStatus("WebSocket error");
+    };
+
+    websocket.onclose = function() {
+        updateStatus("Disconnected");
+    };
+}
+
+
+function getLastDigit(price) {
+
+    const text = String(price);
+
+    const digitsOnly = text.replace(/\D/g, "");
+
+    return Number(digitsOnly.slice(-1));
+}
+
+
+function updateStatus(message) {
+
+    document.getElementById("status").innerText = message;
+
+}
+
+
+function analyze() {
+
+    if (digits.length === 0) {
+        return;
+    }
+
+    const counts = new Array(10).fill(0);
+
+    digits.forEach(function(digit) {
+        counts[digit]++;
+    });
+
+
+    // HOT DIGIT
+
+    let hotDigit = 0;
+
+    for (let i = 1; i < 10; i++) {
+
+        if (counts[i] > counts[hotDigit]) {
+            hotDigit = i;
+        }
+
+    }
+
+
+    // COLD DIGIT
+
+    let coldDigit = 0;
+
+    for (let i = 1; i < 10; i++) {
+
+        if (counts[i] < counts[coldDigit]) {
+            coldDigit = i;
+        }
+
+    }
+
+
+    // EVEN / ODD
+
+    const evenCount =
+        digits.filter(function(d) {
+            return d % 2 === 0;
+        }).length;
+
+    const oddCount =
+        digits.length - evenCount;
+
+
+    // OVER / UNDER 5
+
+    const overCount =
+        digits.filter(function(d) {
+            return d > 5;
+        }).length;
+
+    const underCount =
+        digits.filter(function(d) {
+            return d < 5;
+        }).length;
+
+
+    document.getElementById("hot").innerText =
+        hotDigit + " (" + counts[hotDigit] + ")";
+
+
+    document.getElementById("cold").innerText =
+        coldDigit + " (" + counts[coldDigit] + ")";
+
+
+    document.getElementById("even").innerText =
+        ((evenCount / digits.length) * 100).toFixed(1) + "%";
+
+
+    document.getElementById("odd").innerText =
+        ((oddCount / digits.length) * 100).toFixed(1) + "%";
+
+
+    document.getElementById("over").innerText =
+        ((overCount / digits.length) * 100).toFixed(1) + "%";
+
+
+    document.getElementById("under").innerText =
+        ((underCount / digits.length) * 100).toFixed(1) + "%";
+
+
+    document.getElementById("tickCount").innerText =
+        digits.length + " ticks";
+
+
+    displayDigits(counts);
+
+
+    document.getElementById("signal").innerText =
+        "Hot: " + hotDigit +
+        " | Cold: " + coldDigit +
+        " | Even: " +
+        ((evenCount / digits.length) * 100).toFixed(1) +
+        "% | Odd: " +
+        ((oddCount / digits.length) * 100).toFixed(1) +
+        "%";
+
+}
+
+
+function displayDigits(counts) {
+
+    const container =
+        document.getElementById("digits");
+
+    const max =
+        Math.max(...counts, 1);
+
+    container.innerHTML = "";
+
+
+    counts.forEach(function(count, digit) {
+
+        const percentage =
+            (count / digits.length) * 100;
+
+        const width =
+            (count / max) * 100;
+
+
+        container.innerHTML += `
+
+        <div class="digit">
+
+            <strong>${digit}</strong>
+
+            <br>
+
+            ${count}
+
+            <div class="bar">
+
+                <div
+                    class="fill"
+                    style="width:${width}%">
+                </div>
+
+            </div>
+
+            <small>
+                ${percentage.toFixed(1)}%
+            </small>
+
+        </div>
+
+        `;
+
+    });
+
+}
 
 </script>
 
