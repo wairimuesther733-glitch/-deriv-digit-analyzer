@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Deriv Digit Analyzer</title>
 
 <style>
+
 body {
     font-family: Arial, sans-serif;
     background: #0b1020;
@@ -34,19 +40,22 @@ h1 {
     color: #9ca8c4;
 }
 
-select, button {
+select,
+button {
     width: 100%;
     padding: 12px;
     margin-top: 8px;
     border-radius: 8px;
     border: none;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
 button {
     background: #ff3b7f;
     color: white;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .status {
@@ -54,11 +63,13 @@ button {
     padding: 8px 12px;
     border-radius: 20px;
     background: #35405e;
+    margin-right: 10px;
 }
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns:
+    repeat(auto-fit, minmax(150px, 1fr));
     gap: 12px;
 }
 
@@ -76,7 +87,8 @@ button {
 
 .digits {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
+    grid-template-columns:
+    repeat(10, 1fr);
     gap: 6px;
 }
 
@@ -109,7 +121,15 @@ button {
     color: #9ca8c4;
     font-size: 13px;
 }
+
+.error {
+    color: #ff6b6b;
+    margin-top: 10px;
+    word-break: break-word;
+}
+
 </style>
+
 </head>
 
 <body>
@@ -119,386 +139,1053 @@ button {
 <h1>Deriv Digit Analyzer</h1>
 
 <p class="subtitle">
-Live analysis for Matches/Differs, Even/Odd and Over/Under.
+Live analysis for Matches/Differs,
+Even/Odd and Over/Under.
 </p>
+
 
 <div class="card">
 
 <label>Market</label>
 
 <select id="symbol">
-<option value="1HZ10V">Volatility 10 Index</option>
-<option value="1HZ25V">Volatility 25 Index</option>
-<option value="1HZ50V">Volatility 50 Index</option>
-<option value="1HZ75V">Volatility 75 Index</option>
-<option value="1HZ100V">Volatility 100 Index</option>
+
+<option value="1HZ10V">
+Volatility 10 Index
+</option>
+
+<option value="1HZ25V">
+Volatility 25 Index
+</option>
+
+<option value="1HZ50V">
+Volatility 50 Index
+</option>
+
+<option value="1HZ75V">
+Volatility 75 Index
+</option>
+
+<option value="1HZ100V">
+Volatility 100 Index
+</option>
+
 </select>
 
+
 <br>
+
 
 <label>Number of ticks</label>
 
 <select id="sample">
-<option value="100">100</option>
-<option value="250" selected>250</option>
-<option value="500">500</option>
-<option value="1000">1000</option>
+
+<option value="100">
+100
+</option>
+
+<option value="250" selected>
+250
+</option>
+
+<option value="500">
+500
+</option>
+
+<option value="1000">
+1000
+</option>
+
 </select>
+
 
 <br>
 
-<button onclick="startAnalyzer()">START ANALYSIS</button>
+
+<button
+onclick="startAnalyzer()">
+
+START ANALYSIS
+
+</button>
 
 </div>
+
 
 <div class="card">
 
-<span id="status" class="status">Disconnected</span>
+<span id="status"
+class="status">
 
-<span id="tickCount">0 ticks</span>
+Disconnected
+
+</span>
+
+<span id="tickCount">
+
+0 ticks
+
+</span>
+
+<div id="error"
+class="error">
+</div>
 
 </div>
+
 
 <div class="card stats">
 
-<div class="stat">
-<div>Hot Digit</div>
-<div id="hot" class="value">—</div>
-</div>
 
 <div class="stat">
-<div>Cold Digit</div>
-<div id="cold" class="value">—</div>
+
+<div>
+Hot Digit
 </div>
 
-<div class="stat">
-<div>Even</div>
-<div id="even" class="value">—</div>
-</div>
-
-<div class="stat">
-<div>Odd</div>
-<div id="odd" class="value">—</div>
-</div>
-
-<div class="stat">
-<div>Over 5</div>
-<div id="over" class="value">—</div>
-</div>
-
-<div class="stat">
-<div>Under 5</div>
-<div id="under" class="value">—</div>
+<div id="hot"
+class="value">
+—
 </div>
 
 </div>
+
+
+<div class="stat">
+
+<div>
+Cold Digit
+</div>
+
+<div id="cold"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Even
+</div>
+
+<div id="even"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Odd
+</div>
+
+<div id="odd"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Over 5
+</div>
+
+<div id="over"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Under 5
+</div>
+
+<div id="under"
+class="value">
+—
+</div>
+
+</div>
+
+
+</div>
+
 
 <div class="card">
 
-<h2>Digit Distribution</h2>
+<h2>
+Digit Distribution
+</h2>
 
-<div id="digits" class="digits"></div>
+<div id="digits"
+class="digits">
+</div>
 
 </div>
 
+
 <div class="card">
 
-<h2>Current Analysis</h2>
+<h2>
+Current Analysis
+</h2>
 
-<div id="signal" class="signal">
+<div id="signal"
+class="signal">
+
 Waiting for data...
+
 </div>
+
 
 <p class="warning">
+
 This analyzer provides statistical information only.
 It does not guarantee the next digit and does not place trades.
+
 </p>
 
 </div>
 
 </div>
 
+
 <script>
 
+
 let websocket = null;
+
 let digits = [];
+
+let sampleSize = 250;
+
+
+/*
+    DERIV PUBLIC MARKET DATA
+*/
+
+const DERIV_URL =
+"wss://ws.binaryws.com/websockets/v3";
+
 
 function startAnalyzer() {
 
+
     if (websocket) {
-        websocket.close();
+
+        try {
+            websocket.close();
+        }
+
+        catch (error) {}
+
     }
+
 
     digits = [];
 
-    updateStatus("Connecting...");
 
-    const symbol =
-        document.getElementById("symbol").value;
+    sampleSize =
+        Number(
+            document.getElementById("sample").value
+        );
 
-    const sample =
-        Number(document.getElementById("sample").value);
 
-    websocket = new WebSocket(
-    "wss://api.derivws.com/trading/v1/options/ws/public"
-);
+    setStatus(
+        "Connecting to Deriv..."
+    );
 
-    websocket.onopen = function() {
 
-        updateStatus("Connected - loading data...");
+    clearError();
 
-        websocket.send(JSON.stringify({
-            ticks_history: symbol,
-            end: "latest",
-            count: sample,
-            style: "ticks",
-            req_id: 1
-        }));
 
-        websocket.send(JSON.stringify({
-            ticks: symbol,
-            subscribe: 1,
-            req_id: 2
-        }));
+    websocket =
+        new WebSocket(DERIV_URL);
+
+
+    websocket.onopen =
+    function() {
+
+
+        setStatus(
+            "Connected - checking market..."
+        );
+
+
+        /*
+            First ask Deriv which
+            symbols are available.
+        */
+
+        websocket.send(
+            JSON.stringify({
+
+                active_symbols: "brief",
+
+                product_type: "basic",
+
+                req_id: 1
+
+            })
+        );
+
     };
 
-    websocket.onmessage = function(event) {
 
-        const data = JSON.parse(event.data);
+    websocket.onmessage =
+    function(event) {
 
-        if (data.error) {
-            updateStatus(
-                "API error: " + data.error.message
+
+        let data;
+
+
+        try {
+
+            data =
+                JSON.parse(event.data);
+
+        }
+
+        catch (error) {
+
+            showError(
+                "Invalid response received from Deriv."
             );
+
             return;
         }
 
+
+        console.log(
+            "Deriv response:",
+            data
+        );
+
+
+        /*
+            API ERROR
+        */
+
+        if (data.error) {
+
+            showError(
+                data.error.message ||
+                "Deriv API error."
+            );
+
+            setStatus(
+                "API error"
+            );
+
+            return;
+        }
+
+
+        /*
+            ACTIVE SYMBOLS
+        */
+
         if (
-            data.msg_type === "history" &&
-            data.history
+            data.msg_type ===
+            "active_symbols"
         ) {
 
-            const prices =
-                data.history.prices || [];
 
-            digits = prices.map(function(price) {
-                return getLastDigit(price);
-            });
+            const symbol =
+                document.getElementById(
+                    "symbol"
+                ).value;
 
-            if (digits.length > sample) {
-                digits = digits.slice(-sample);
+
+            const available =
+                data.active_symbols ||
+                [];
+
+
+            const found =
+                available.some(
+                    function(item) {
+
+                        return (
+                            item.symbol ===
+                            symbol
+                        );
+
+                    }
+                );
+
+
+            if (!found) {
+
+                showError(
+                    "Selected symbol " +
+                    symbol +
+                    " was not returned by Deriv."
+                );
+
+                return;
             }
+
+
+            setStatus(
+                "Market found - loading ticks..."
+            );
+
+
+            /*
+                HISTORICAL TICKS
+            */
+
+            websocket.send(
+                JSON.stringify({
+
+                    ticks_history:
+                        symbol,
+
+                    end:
+                        "latest",
+
+                    count:
+                        sampleSize,
+
+                    style:
+                        "ticks",
+
+                    subscribe:
+                        0,
+
+                    req_id:
+                        2
+
+                })
+            );
+
+
+            /*
+                LIVE TICK STREAM
+            */
+
+            websocket.send(
+                JSON.stringify({
+
+                    ticks:
+                        symbol,
+
+                    subscribe:
+                        1,
+
+                    req_id:
+                        3
+
+                })
+            );
+
+
+            return;
+        }
+
+
+        /*
+            HISTORICAL DATA
+        */
+
+        if (
+            data.msg_type ===
+            "history"
+        ) {
+
+
+            if (
+                !data.history ||
+                !data.history.prices
+            ) {
+
+                showError(
+                    "Deriv returned no historical prices."
+                );
+
+                return;
+            }
+
+
+            const prices =
+                data.history.prices;
+
+
+            digits =
+                prices.map(
+                    function(price) {
+
+                        return getLastDigit(
+                            price
+                        );
+
+                    }
+                );
+
+
+            if (
+                digits.length >
+                sampleSize
+            ) {
+
+                digits =
+                    digits.slice(
+                        -sampleSize
+                    );
+
+            }
+
 
             analyze();
 
-            updateStatus(
+
+            setStatus(
                 "Loaded " +
                 digits.length +
                 " historical ticks"
             );
 
+
             return;
         }
 
+
+        /*
+            LIVE TICK
+        */
+
         if (
-            data.msg_type === "tick" &&
-            data.tick
+            data.msg_type ===
+            "tick"
         ) {
 
-            const digit =
-                getLastDigit(data.tick.quote);
 
-            digits.push(digit);
+            if (
+                !data.tick ||
+                data.tick.quote ===
+                undefined
+            ) {
 
-            if (digits.length > sample) {
-                digits.shift();
+                return;
             }
+
+
+            const digit =
+                getLastDigit(
+                    data.tick.quote
+                );
+
+
+            digits.push(
+                digit
+            );
+
+
+            if (
+                digits.length >
+                sampleSize
+            ) {
+
+                digits.shift();
+
+            }
+
 
             analyze();
 
-            updateStatus(
+
+            setStatus(
                 "LIVE - receiving ticks"
             );
+
+
+            return;
         }
+
     };
 
-    websocket.onerror = function(event) {
-    updateStatus("WebSocket ERROR - connection failed");
-    console.error("WebSocket error:", event);
-};
 
-websocket.onclose = function(event) {
-    updateStatus(
-        "Closed - code " + event.code
-    );
-    console.log(
-        "WebSocket closed:",
-        event.code,
-        event.reason
-    );
-};
+    websocket.onerror =
+    function(event) {
+
+        console.log(
+            "WebSocket error:",
+            event
+        );
+
+
+        setStatus(
+            "WebSocket connection error"
+        );
+
+
+        showError(
+            "The browser could not establish the Deriv WebSocket connection."
+        );
+
+    };
+
+
+    websocket.onclose =
+    function(event) {
+
+
+        console.log(
+            "WebSocket closed:",
+            event.code,
+            event.reason
+        );
+
+
+        if (
+            digits.length === 0
+        ) {
+
+            setStatus(
+                "Disconnected - code " +
+                event.code
+            );
+
+        }
+
+        else {
+
+            setStatus(
+                "Disconnected"
+            );
+
+        }
+
+    };
+
 }
 
 
 function getLastDigit(price) {
 
-    const text = String(price);
+
+    const text =
+        String(price);
+
+
+    /*
+        Remove decimal point
+        and other characters.
+    */
 
     const digitsOnly =
-        text.replace(/\D/g, "");
+        text.replace(
+            /\D/g,
+            ""
+        );
+
+
+    if (
+        digitsOnly.length === 0
+    ) {
+
+        return 0;
+
+    }
+
 
     return Number(
-        digitsOnly.slice(-1)
+        digitsOnly[
+            digitsOnly.length - 1
+        ]
     );
+
 }
 
 
-function updateStatus(message) {
+function setStatus(message) {
 
-    document.getElementById("status")
-        .innerText = message;
+
+    document.getElementById(
+        "status"
+    ).innerText =
+        message;
+
 }
 
+
+function showError(message) {
+
+
+    document.getElementById(
+        "error"
+    ).innerText =
+        message;
+
+}
+
+
+function clearError() {
+
+
+    document.getElementById(
+        "error"
+    ).innerText =
+        "";
+
+}
+
+
+/*
+    ANALYSIS
+*/
 
 function analyze() {
 
-    if (digits.length === 0) {
+
+    if (
+        digits.length === 0
+    ) {
+
         return;
+
     }
+
 
     const counts =
         new Array(10).fill(0);
 
-    digits.forEach(function(digit) {
-        counts[digit]++;
-    });
+
+    digits.forEach(
+        function(digit) {
+
+            counts[digit]++;
+
+        }
+    );
+
+
+    /*
+        HOT DIGIT
+    */
 
     let hotDigit = 0;
-    let coldDigit = 0;
 
-    for (let i = 1; i < 10; i++) {
 
-        if (counts[i] > counts[hotDigit]) {
+    for (
+        let i = 1;
+        i < 10;
+        i++
+    ) {
+
+
+        if (
+            counts[i] >
+            counts[hotDigit]
+        ) {
+
             hotDigit = i;
+
         }
 
-        if (counts[i] < counts[coldDigit]) {
-            coldDigit = i;
-        }
     }
 
+
+    /*
+        COLD DIGIT
+    */
+
+    let coldDigit = 0;
+
+
+    for (
+        let i = 1;
+        i < 10;
+        i++
+    ) {
+
+
+        if (
+            counts[i] <
+            counts[coldDigit]
+        ) {
+
+            coldDigit = i;
+
+        }
+
+    }
+
+
+    /*
+        EVEN
+    */
+
     const evenCount =
-        digits.filter(function(d) {
-            return d % 2 === 0;
-        }).length;
+        digits.filter(
+            function(digit) {
+
+                return (
+                    digit % 2 === 0
+                );
+
+            }
+        ).length;
+
+
+    /*
+        ODD
+    */
 
     const oddCount =
-        digits.length - evenCount;
+        digits.length -
+        evenCount;
+
+
+    /*
+        OVER 5
+    */
 
     const overCount =
-        digits.filter(function(d) {
-            return d > 5;
-        }).length;
+        digits.filter(
+            function(digit) {
+
+                return digit > 5;
+
+            }
+        ).length;
+
+
+    /*
+        UNDER 5
+    */
 
     const underCount =
-        digits.filter(function(d) {
-            return d < 5;
-        }).length;
+        digits.filter(
+            function(digit) {
 
-    document.getElementById("hot").innerText =
+                return digit < 5;
+
+            }
+        ).length;
+
+
+    /*
+        UPDATE UI
+    */
+
+    document.getElementById(
+        "hot"
+    ).innerText =
+
         hotDigit +
         " (" +
         counts[hotDigit] +
         ")";
 
-    document.getElementById("cold").innerText =
+
+    document.getElementById(
+        "cold"
+    ).innerText =
+
         coldDigit +
         " (" +
         counts[coldDigit] +
         ")";
 
-    document.getElementById("even").innerText =
-        ((evenCount / digits.length) * 100)
-        .toFixed(1) + "%";
 
-    document.getElementById("odd").innerText =
-        ((oddCount / digits.length) * 100)
-        .toFixed(1) + "%";
+    document.getElementById(
+        "even"
+    ).innerText =
 
-    document.getElementById("over").innerText =
-        ((overCount / digits.length) * 100)
-        .toFixed(1) + "%";
+        percentage(
+            evenCount
+        );
 
-    document.getElementById("under").innerText =
-        ((underCount / digits.length) * 100)
-        .toFixed(1) + "%";
 
-    document.getElementById("tickCount").innerText =
-        digits.length + " ticks";
+    document.getElementById(
+        "odd"
+    ).innerText =
 
-    displayDigits(counts);
+        percentage(
+            oddCount
+        );
 
-    document.getElementById("signal").innerText =
+
+    document.getElementById(
+        "over"
+    ).innerText =
+
+        percentage(
+            overCount
+        );
+
+
+    document.getElementById(
+        "under"
+    ).innerText =
+
+        percentage(
+            underCount
+        );
+
+
+    document.getElementById(
+        "tickCount"
+    ).innerText =
+
+        digits.length +
+        " ticks";
+
+
+    displayDigits(
+        counts
+    );
+
+
+    document.getElementById(
+        "signal"
+    ).innerText =
+
         "Hot: " +
         hotDigit +
+
         " | Cold: " +
         coldDigit +
+
         " | Even: " +
-        ((evenCount / digits.length) * 100)
-        .toFixed(1) +
-        "% | Odd: " +
-        ((oddCount / digits.length) * 100)
-        .toFixed(1) +
-        "%";
+        percentage(
+            evenCount
+        ) +
+
+        " | Odd: " +
+        percentage(
+            oddCount
+        );
+
 }
 
 
-function displayDigits(counts) {
+function percentage(count) {
+
+
+    if (
+        digits.length === 0
+    ) {
+
+        return "0.0%";
+
+    }
+
+
+    return (
+
+        (
+            count /
+            digits.length
+        ) *
+        100
+
+    ).toFixed(1) + "%";
+
+}
+
+
+/*
+    DIGIT DISPLAY
+*/
+
+function displayDigits(
+    counts
+) {
+
 
     const container =
-        document.getElementById("digits");
+        document.getElementById(
+            "digits"
+        );
+
 
     const max =
-        Math.max(...counts, 1);
+        Math.max(
+            ...counts,
+            1
+        );
 
-    container.innerHTML = "";
 
-    counts.forEach(function(count, digit) {
+    container.innerHTML =
+        "";
 
-        const percentage =
-            (count / digits.length) * 100;
 
-        const width =
-            (count / max) * 100;
+    counts.forEach(
+        function(
+            count,
+            digit
+        ) {
 
-        container.innerHTML += `
-        <div class="digit">
 
-            <strong>${digit}</strong>
+            const percent =
+                (
+                    count /
+                    digits.length
+                ) *
+                100;
 
-            <br>
 
-            ${count}
+            const width =
+                (
+                    count /
+                    max
+                ) *
+                100;
 
-            <div class="bar">
 
-                <div
-                    class="fill"
-                    style="width:${width}%">
+            container.innerHTML += `
+
+            <div class="digit">
+
+                <strong>
+                    ${digit}
+                </strong>
+
+                <br>
+
+                ${count}
+
+                <div class="bar">
+
+                    <div
+                        class="fill"
+                        style="width:${width}%">
+                    </div>
+
                 </div>
+
+                <small>
+                    ${percent.toFixed(1)}%
+                </small>
 
             </div>
 
-            <small>
-                ${percentage.toFixed(1)}%
-            </small>
+            `;
 
-        </div>
-        `;
-    });
+        }
+    );
+
 }
+
 
 </script>
 
 </body>
+
 </html>
