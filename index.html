@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deriv Connection Test</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriv Connection Test</title>
 </head>
 
 <body>
@@ -12,7 +12,7 @@
 
 <h2 id="status">Connecting...</h2>
 
-<p id="details"></p>
+<p id="details">Testing new Deriv public WebSocket...</p>
 
 <script>
 
@@ -20,7 +20,7 @@ const status = document.getElementById("status");
 const details = document.getElementById("details");
 
 const ws = new WebSocket(
-    "wss://ws.binaryws.com/websockets/v3?app_id=1089"
+    "wss://api.derivws.com/trading/v1/options/ws/public"
 );
 
 ws.onopen = function () {
@@ -28,7 +28,7 @@ ws.onopen = function () {
     status.innerText = "CONNECTED ✅";
 
     details.innerText =
-        "WebSocket opened successfully.";
+        "New Deriv public WebSocket connected.";
 
     ws.send(JSON.stringify({
         ping: 1
@@ -40,16 +40,21 @@ ws.onmessage = function (event) {
 
     console.log(event.data);
 
-    status.innerText = "CONNECTED + RECEIVING DATA ✅";
+    status.innerText =
+        "CONNECTED + RECEIVING DATA ✅";
 
     details.innerText =
-        "Deriv responded successfully.";
+        "Deriv public API responded successfully.";
 
 };
 
 ws.onerror = function () {
 
-    status.innerText = "CONNECTION ERROR ❌";
+    status.innerText =
+        "CONNECTION ERROR ❌";
+
+    details.innerText =
+        "The browser could not establish the connection.";
 
 };
 
