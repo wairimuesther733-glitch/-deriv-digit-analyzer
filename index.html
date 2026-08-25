@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1.0">
-
-<title>Deriv Digit Analyzer</title>
+<title>Deriv Digit Predictor</title>
 
 <style>
 
@@ -48,18 +44,16 @@ button {
     border-radius: 8px;
     border: none;
     font-size: 16px;
-    box-sizing: border-box;
 }
 
 button {
     background: #ff3b7f;
     color: white;
     font-weight: bold;
-    cursor: pointer;
 }
 
 button:active {
-    transform: scale(0.99);
+    transform: scale(0.98);
 }
 
 .status {
@@ -72,8 +66,7 @@ button:active {
 
 .stats {
     display: grid;
-    grid-template-columns:
-    repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 12px;
 }
 
@@ -89,30 +82,33 @@ button:active {
     margin-top: 5px;
 }
 
-.latest {
-    font-size: 40px;
-    font-weight: bold;
-    margin-top: 5px;
-}
-
-.digits {
-    display: grid;
-    grid-template-columns:
-    repeat(10, 1fr);
-    gap: 6px;
-}
-
-.digit {
-    background: #0e1528;
-    padding: 10px 4px;
+.prediction {
     text-align: center;
-    border-radius: 7px;
+    background: #0e1528;
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.predicted-digit {
+    font-size: 70px;
+    font-weight: bold;
+    margin: 10px;
+}
+
+.strength {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.confidence {
+    margin-top: 10px;
+    font-size: 18px;
 }
 
 .bar {
-    height: 5px;
+    height: 8px;
     background: #35405e;
-    margin-top: 5px;
+    margin-top: 8px;
     border-radius: 5px;
 }
 
@@ -122,70 +118,60 @@ button:active {
     border-radius: 5px;
 }
 
+.digit-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+}
+
+.digit-box {
+    background: #0e1528;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.digit-number {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.small {
+    color: #9ca8c4;
+    font-size: 13px;
+}
+
 .signal {
     font-size: 19px;
     font-weight: bold;
-    line-height: 1.6;
-}
-
-.good {
-    color: #55efc4;
 }
 
 .warning {
     color: #9ca8c4;
     font-size: 13px;
-}
-
-.error {
-    color: #ff7675;
-    margin-top: 10px;
-    word-break: break-word;
-}
-
-.section-title {
-    margin-bottom: 10px;
-}
-
-.analysis-box {
-    background: #0e1528;
-    padding: 15px;
-    border-radius: 10px;
-    margin-top: 10px;
+    line-height: 1.5;
 }
 
 </style>
-
 </head>
 
 
 <body>
 
-
 <div class="container">
 
-
-<h1>
-Deriv Digit Analyzer
-</h1>
-
+<h1>🎯 Deriv Digit Predictor</h1>
 
 <p class="subtitle">
-
-Live statistical analysis for
-Matches/Differs, Even/Odd
-and Over/Under.
-
+Live statistical analysis for Matches/Differs, Even/Odd and Over/Under.
 </p>
 
 
+<!-- SETTINGS -->
+
 <div class="card">
 
-
-<label>
-Market
-</label>
-
+<label>Market</label>
 
 <select id="symbol">
 
@@ -215,27 +201,24 @@ Volatility 100 Index
 <br>
 
 
-<label>
-Number of ticks
-</label>
-
+<label>Analysis sample</label>
 
 <select id="sample">
 
 <option value="100">
-100
+100 ticks
 </option>
 
 <option value="250" selected>
-250
+250 ticks
 </option>
 
 <option value="500">
-500
+500 ticks
 </option>
 
 <option value="1000">
-1000
+1000 ticks
 </option>
 
 </select>
@@ -246,58 +229,80 @@ Number of ticks
 
 <button onclick="startAnalyzer()">
 
-START ANALYSIS
+START LIVE ANALYSIS
 
 </button>
 
-
 </div>
 
 
+<!-- CONNECTION -->
+
 <div class="card">
 
-
-<span id="status"
-class="status">
-
+<span id="status" class="status">
 Disconnected
-
 </span>
-
 
 <span id="tickCount">
-
 0 ticks
-
 </span>
 
-
-<div id="error"
-class="error">
 </div>
 
 
-</div>
+<!-- MAIN MATCH PREDICTION -->
 
+<div class="card prediction">
 
-<div class="card">
+<h2>
+🎯 MATCH DIGIT PREDICTION
+</h2>
 
-
-<div>
-Latest Digit
-</div>
-
-
-<div id="latestDigit"
-class="latest">
+<div id="predictedDigit"
+class="predicted-digit">
 
 —
 
 </div>
 
 
+<div>
+
+Signal Strength
+
 </div>
 
+
+<div id="strength"
+class="strength">
+
+—
+
+</div>
+
+
+<div id="confidence"
+class="confidence">
+
+Waiting for sufficient data...
+
+</div>
+
+
+<div class="bar">
+
+<div id="strengthBar"
+class="fill"
+style="width:0%">
+</div>
+
+</div>
+
+</div>
+
+
+<!-- GENERAL STATISTICS -->
 
 <div class="card stats">
 
@@ -385,38 +390,66 @@ class="value">
 
 </div>
 
-
 </div>
 
+
+<!-- DIGIT DISTRIBUTION -->
 
 <div class="card">
-
-
-<h2 class="section-title">
-
-Digit Distribution
-
-</h2>
-
-
-<div id="digits"
-class="digits">
-
-</div>
-
-
-</div>
-
-
-<div class="card">
-
 
 <h2>
-
-Current Analysis
-
+Digit Distribution
 </h2>
 
+<div id="digits"
+class="digit-grid">
+
+</div>
+
+</div>
+
+
+<!-- OTHER MARKETS -->
+
+<div class="card">
+
+<h2>
+Even / Odd
+</h2>
+
+<div id="evenOddSignal"
+class="signal">
+
+Waiting for data...
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>
+Over / Under 5
+</h2>
+
+<div id="overUnderSignal"
+class="signal">
+
+Waiting for data...
+
+</div>
+
+</div>
+
+
+<!-- EXPLANATION -->
+
+<div class="card">
+
+<h2>
+Current Analysis
+</h2>
 
 <div id="signal"
 class="signal">
@@ -425,123 +458,20 @@ Waiting for data...
 
 </div>
 
-
-</div>
-
-
-<div class="card">
-
-
-<h2>
-
-Matches / Differs
-
-</h2>
-
-
-<div class="analysis-box">
-
-<div>
-Most frequent digit:
-<strong id="matchDigit">—</strong>
-</div>
-
-<div>
-Frequency:
-<strong id="matchFrequency">—</strong>
-</div>
-
-<div>
-Suggested observation:
-<strong id="matchSignal">Waiting</strong>
-</div>
-
-</div>
-
-
-</div>
-
-
-<div class="card">
-
-
-<h2>
-
-Even / Odd
-
-</h2>
-
-
-<div class="analysis-box">
-
-<div>
-Even:
-<strong id="evenSignal">—</strong>
-</div>
-
-<div>
-Odd:
-<strong id="oddSignal">—</strong>
-</div>
-
-<div>
-Current balance:
-<strong id="evenOddSignal">Waiting</strong>
-</div>
-
-</div>
-
-
-</div>
-
-
-<div class="card">
-
-
-<h2>
-
-Over / Under 5
-
-</h2>
-
-
-<div class="analysis-box">
-
-<div>
-Over 5:
-<strong id="overSignal">—</strong>
-</div>
-
-<div>
-Under 5:
-<strong id="underSignal">—</strong>
-</div>
-
-<div>
-Current balance:
-<strong id="overUnderSignal">Waiting</strong>
-</div>
-
-</div>
-
-
-</div>
-
-
-<div class="card">
-
-
 <p class="warning">
 
-This tool provides statistical information only.
-It does not guarantee the next digit
-and does not place trades.
+The predicted digit is generated from statistical patterns
+in the selected tick sample. The strength percentage is
+a model score, NOT a guaranteed probability that the next
+digit will be the predicted digit.
+
+Synthetic indices can produce unpredictable outcomes.
+
+This analyzer does not place trades automatically.
 
 </p>
 
-
 </div>
-
 
 </div>
 
@@ -553,420 +483,280 @@ let websocket = null;
 
 let digits = [];
 
-
-/*
-NEW DERIV PUBLIC WEBSOCKET
-This is the endpoint that successfully
-connected during our test.
-*/
+let predictionLocked = false;
 
 
-const DERIV_URL =
-"wss://api.derivws.com/trading/v1/options/ws/public";
-
+/* ================================
+   START ANALYZER
+================================ */
 
 function startAnalyzer() {
 
-
-    /*
-    Close previous connection.
-    */
-
-
     if (websocket) {
 
-        try {
-
-            websocket.close();
-
-        }
-
-        catch (error) {}
+        websocket.close();
 
     }
-
-
-    /*
-    Clear previous data.
-    */
 
 
     digits = [];
 
 
-    document.getElementById(
-        "tickCount"
-    ).innerText =
-        "0 ticks";
+    updateStatus("Connecting...");
 
 
-    document.getElementById(
-        "latestDigit"
-    ).innerText =
-        "—";
+    const symbol =
+        document.getElementById("symbol").value;
 
 
-    document.getElementById(
-        "error"
-    ).innerText =
-        "";
-
-
-    document.getElementById(
-        "signal"
-    ).innerText =
-        "Connecting...";
-
-
-    /*
-    Connect.
-    */
+    const sample =
+        Number(
+            document.getElementById("sample").value
+        );
 
 
     websocket =
         new WebSocket(
-            DERIV_URL
+            "wss://ws.binaryws.com/websockets/v3"
         );
 
 
-    websocket.onopen =
-        function() {
+    websocket.onopen = function() {
 
 
-            updateStatus(
-                "Connected"
-            );
+        updateStatus(
+            "Connected - loading data..."
+        );
 
 
-            /*
-            Tell the public endpoint
-            which underlying symbol
-            we want.
-            */
+        /* Historical ticks */
+
+        websocket.send(
+            JSON.stringify({
+
+                ticks_history: symbol,
+
+                end: "latest",
+
+                count: sample,
+
+                style: "ticks",
+
+                req_id: 1
+
+            })
+        );
 
 
-            const symbol =
-                document.getElementById(
-                    "symbol"
-                ).value;
+        /* Live subscription */
 
+        websocket.send(
+            JSON.stringify({
 
-            /*
-            Request ticks.
-            */
+                ticks: symbol,
 
+                subscribe: 1,
 
-            websocket.send(
-                JSON.stringify({
+                req_id: 2
 
-                    ticks:
-                        symbol,
+            })
+        );
 
-                    subscribe:
-                        1
-
-                })
-            );
-
-
-        };
+    };
 
 
     websocket.onmessage =
-        function(event) {
+    function(event) {
 
 
-            let data;
+        const data =
+            JSON.parse(event.data);
 
 
-            try {
+        console.log(
+            "Deriv:",
+            data
+        );
 
-                data =
-                    JSON.parse(
-                        event.data
-                    );
+
+        /* API ERROR */
+
+        if (data.error) {
+
+            updateStatus(
+                "API error: " +
+                data.error.message
+            );
+
+            return;
+
+        }
+
+
+        /* ============================
+           HISTORICAL DATA
+        ============================ */
+
+        if (
+            data.msg_type === "history" &&
+            data.history
+        ) {
+
+
+            const prices =
+                data.history.prices || [];
+
+
+            digits =
+                prices.map(
+                    function(price) {
+
+                        return getLastDigit(price);
+
+                    }
+                );
+
+
+            if (digits.length > sample) {
+
+                digits =
+                    digits.slice(-sample);
 
             }
 
-            catch (error) {
 
-                return;
-
-            }
+            analyze();
 
 
-            console.log(
-                "DERIV:",
-                data
+            updateStatus(
+                "Loaded " +
+                digits.length +
+                " historical ticks"
             );
 
 
-            /*
-            Display API errors.
-            */
+            return;
+
+        }
 
 
-            if (data.error) {
+        /* ============================
+           LIVE TICK
+        ============================ */
 
-                showError(
-                    data.error.message
+        if (
+            data.msg_type === "tick" &&
+            data.tick
+        ) {
+
+
+            const digit =
+                getLastDigit(
+                    data.tick.quote
                 );
 
-                return;
+
+            digits.push(digit);
+
+
+            if (digits.length > sample) {
+
+                digits.shift();
 
             }
 
 
-            /*
-            Handle tick data.
-            */
+            analyze();
 
 
-            if (
-                data.tick
-            ) {
+            updateStatus(
+                "LIVE - receiving ticks"
+            );
 
+        }
 
-                const quote =
-                    data.tick.quote;
-
-
-                const digit =
-                    getLastDigit(
-                        quote
-                    );
-
-
-                digits.push(
-                    digit
-                );
-
-
-                const sample =
-                    Number(
-                        document.getElementById(
-                            "sample"
-                        ).value
-                    );
-
-
-                /*
-                Keep only the selected
-                number of ticks.
-                */
-
-
-                if (
-                    digits.length
-                    >
-                    sample
-                ) {
-
-                    digits.shift();
-
-                }
-
-
-                /*
-                Display latest digit.
-                */
-
-
-                document.getElementById(
-                    "latestDigit"
-                ).innerText =
-                    digit;
-
-
-                /*
-                Analyze.
-                */
-
-
-                analyze();
-
-
-                updateStatus(
-                    "LIVE - receiving ticks"
-                );
-
-
-            }
-
-
-        };
+    };
 
 
     websocket.onerror =
-        function() {
+    function() {
 
+        updateStatus(
+            "WebSocket error"
+        );
 
-            updateStatus(
-                "Connection error"
-            );
-
-
-            showError(
-                "Connection to Deriv failed."
-            );
-
-
-        };
+    };
 
 
     websocket.onclose =
-        function(event) {
+    function(event) {
 
+        updateStatus(
+            "Disconnected"
+        );
 
-            updateStatus(
-                "Disconnected"
-            );
+        console.log(
+            "Close code:",
+            event.code
+        );
 
-
-            /*
-            Only display an error if
-            there was actually a close code.
-            */
-
-
-            if (
-                event.code
-            ) {
-
-                showError(
-                    "Connection closed. Code: "
-                    +
-                    event.code
-                );
-
-            }
-
-
-        };
-
+    };
 
 }
 
 
-function getLastDigit(
-    price
-) {
+/* ================================
+   LAST DIGIT
+================================ */
 
-
-    /*
-    Convert price to text.
-    */
+function getLastDigit(price) {
 
 
     const text =
         String(price);
 
 
-    /*
-    Find decimal part.
-    */
-
-
-    if (
-        text.includes(".")
-    ) {
-
-
-        const parts =
-            text.split(".");
-
-
-        const decimal =
-            parts[1];
-
-
-        if (
-            decimal
-            &&
-            decimal.length > 0
-        ) {
-
-
-            return Number(
-                decimal[
-                    decimal.length - 1
-                ]
-            );
-
-
-        }
-
-    }
-
-
-    /*
-    Fallback.
-    */
-
-
-    const numbers =
-        text.replace(
-            /\D/g,
-            ""
-        );
+    const digitsOnly =
+        text.replace(/\D/g, "");
 
 
     return Number(
-        numbers.slice(-1)
+        digitsOnly.slice(-1)
     );
-
 
 }
 
 
-function updateStatus(
-    message
-) {
+/* ================================
+   STATUS
+================================ */
+
+function updateStatus(message) {
 
 
     document.getElementById(
         "status"
-    ).innerText =
-        message;
-
+    ).innerText = message;
 
 }
 
 
-function showError(
-    message
-) {
-
-
-    document.getElementById(
-        "error"
-    ).innerText =
-        message;
-
-
-}
-
+/* ================================
+   MAIN ANALYSIS
+================================ */
 
 function analyze() {
 
 
-    if (
-        digits.length === 0
-    ) {
+    if (digits.length < 10) {
 
         return;
 
     }
 
 
-    /*
-    Count digits 0-9.
-    */
-
-
     const counts =
-        new Array(10)
-        .fill(0);
+        new Array(10).fill(0);
 
 
     digits.forEach(
@@ -978,10 +768,9 @@ function analyze() {
     );
 
 
-    /*
-    HOT DIGIT
-    */
-
+    /* ============================
+       HOT DIGIT
+    ============================ */
 
     let hotDigit = 0;
 
@@ -994,8 +783,7 @@ function analyze() {
 
 
         if (
-            counts[i]
-            >
+            counts[i] >
             counts[hotDigit]
         ) {
 
@@ -1006,10 +794,9 @@ function analyze() {
     }
 
 
-    /*
-    COLD DIGIT
-    */
-
+    /* ============================
+       COLD DIGIT
+    ============================ */
 
     let coldDigit = 0;
 
@@ -1022,8 +809,7 @@ function analyze() {
 
 
         if (
-            counts[i]
-            <
+            counts[i] <
             counts[coldDigit]
         ) {
 
@@ -1034,181 +820,112 @@ function analyze() {
     }
 
 
-    /*
-    EVEN.
-    */
-
+    /* ============================
+       EVEN / ODD
+    ============================ */
 
     const evenCount =
         digits.filter(
-            function(digit) {
+            function(d) {
 
-                return (
-                    digit % 2 === 0
-                );
+                return d % 2 === 0;
 
             }
         ).length;
-
-
-    /*
-    ODD.
-    */
 
 
     const oddCount =
-        digits.length
-        -
+        digits.length -
         evenCount;
 
 
-    /*
-    OVER 5.
-    */
-
+    /* ============================
+       OVER / UNDER
+    ============================ */
 
     const overCount =
         digits.filter(
-            function(digit) {
+            function(d) {
 
-                return digit > 5;
+                return d > 5;
 
             }
         ).length;
-
-
-    /*
-    UNDER 5.
-    */
 
 
     const underCount =
         digits.filter(
-            function(digit) {
+            function(d) {
 
-                return digit < 5;
+                return d < 5;
 
             }
         ).length;
 
 
-    /*
-    Percentages.
-    */
-
-
-    const evenPercent =
-        (
-            evenCount
-            /
-            digits.length
-            *
-            100
-        ).toFixed(1);
-
-
-    const oddPercent =
-        (
-            oddCount
-            /
-            digits.length
-            *
-            100
-        ).toFixed(1);
-
-
-    const overPercent =
-        (
-            overCount
-            /
-            digits.length
-            *
-            100
-        ).toFixed(1);
-
-
-    const underPercent =
-        (
-            underCount
-            /
-            digits.length
-            *
-            100
-        ).toFixed(1);
-
-
-    /*
-    Main statistics.
-    */
-
+    /* ============================
+       DISPLAY
+    ============================ */
 
     document.getElementById(
         "hot"
     ).innerText =
-        hotDigit
-        +
-        " ("
-        +
-        counts[hotDigit]
-        +
+        hotDigit +
+        " (" +
+        counts[hotDigit] +
         ")";
 
 
     document.getElementById(
         "cold"
     ).innerText =
-        coldDigit
-        +
-        " ("
-        +
-        counts[coldDigit]
-        +
+        coldDigit +
+        " (" +
+        counts[coldDigit] +
         ")";
 
 
     document.getElementById(
         "even"
     ).innerText =
-        evenPercent
-        +
-        "%";
+        percent(
+            evenCount,
+            digits.length
+        ) + "%";
 
 
     document.getElementById(
         "odd"
     ).innerText =
-        oddPercent
-        +
-        "%";
+        percent(
+            oddCount,
+            digits.length
+        ) + "%";
 
 
     document.getElementById(
         "over"
     ).innerText =
-        overPercent
-        +
-        "%";
+        percent(
+            overCount,
+            digits.length
+        ) + "%";
 
 
     document.getElementById(
         "under"
     ).innerText =
-        underPercent
-        +
-        "%";
+        percent(
+            underCount,
+            digits.length
+        ) + "%";
 
 
     document.getElementById(
         "tickCount"
     ).innerText =
-        digits.length
-        +
+        digits.length +
         " ticks";
-
-
-    /*
-    Digit distribution.
-    */
 
 
     displayDigits(
@@ -1216,211 +933,373 @@ function analyze() {
     );
 
 
+    /* ============================
+       MATCH PREDICTION
+    ============================ */
+
+    calculatePrediction(
+        counts
+    );
+
+
+    /* ============================
+       EVEN / ODD SIGNAL
+    ============================ */
+
+    const evenPercentage =
+        percent(
+            evenCount,
+            digits.length
+        );
+
+
+    const oddPercentage =
+        percent(
+            oddCount,
+            digits.length
+        );
+
+
+    if (
+        evenPercentage >
+        oddPercentage
+    ) {
+
+        document.getElementById(
+            "evenOddSignal"
+        ).innerText =
+            "EVEN is currently more frequent: " +
+            evenPercentage +
+            "%";
+
+    }
+    else {
+
+        document.getElementById(
+            "evenOddSignal"
+        ).innerText =
+            "ODD is currently more frequent: " +
+            oddPercentage +
+            "%";
+
+    }
+
+
+    /* ============================
+       OVER / UNDER SIGNAL
+    ============================ */
+
+    const overPercentage =
+        percent(
+            overCount,
+            digits.length
+        );
+
+
+    const underPercentage =
+        percent(
+            underCount,
+            digits.length
+        );
+
+
+    if (
+        overPercentage >
+        underPercentage
+    ) {
+
+        document.getElementById(
+            "overUnderSignal"
+        ).innerText =
+            "OVER 5 is currently more frequent: " +
+            overPercentage +
+            "%";
+
+    }
+    else {
+
+        document.getElementById(
+            "overUnderSignal"
+        ).innerText =
+            "UNDER 5 is currently more frequent: " +
+            underPercentage +
+            "%";
+
+    }
+
+}
+
+
+/* ================================
+   MATCH PREDICTION ENGINE
+================================ */
+
+function calculatePrediction(counts) {
+
+
+    const total =
+        digits.length;
+
+
+    if (total < 25) {
+
+        document.getElementById(
+            "predictedDigit"
+        ).innerText = "—";
+
+
+        document.getElementById(
+            "strength"
+        ).innerText = "—";
+
+
+        document.getElementById(
+            "confidence"
+        ).innerText =
+            "Need at least 25 ticks";
+
+
+        return;
+
+    }
+
+
+    /* Recent window */
+
+    const recentSize =
+        Math.min(
+            50,
+            total
+        );
+
+
+    const recent =
+        digits.slice(
+            -recentSize
+        );
+
+
+    const recentCounts =
+        new Array(10).fill(0);
+
+
+    recent.forEach(
+        function(digit) {
+
+            recentCounts[digit]++;
+
+        }
+    );
+
+
+    /* Find best candidate */
+
+    let bestDigit = 0;
+
+    let bestScore = -Infinity;
+
+
+    for (
+        let d = 0;
+        d < 10;
+        d++
+    ) {
+
+
+        const overallRate =
+            counts[d] /
+            total;
+
+
+        const recentRate =
+            recentCounts[d] /
+            recentSize;
+
+
+        /*
+        Combine overall frequency
+        and recent frequency.
+        */
+
+        const score =
+            (
+                overallRate * 0.45
+            ) +
+            (
+                recentRate * 0.55
+            );
+
+
+        if (
+            score >
+            bestScore
+        ) {
+
+            bestScore = score;
+
+            bestDigit = d;
+
+        }
+
+    }
+
+
+    /* ============================
+       STRENGTH SCORE
+    ============================ */
+
+    const overallRate =
+        counts[bestDigit] /
+        total;
+
+
+    const recentRate =
+        recentCounts[bestDigit] /
+        recentSize;
+
+
     /*
-    Current analysis.
+    Baseline for 10 digits
+    is approximately 10%.
     */
+
+    const baseline =
+        0.10;
+
+
+    const overallEdge =
+        Math.max(
+            0,
+            overallRate -
+            baseline
+        );
+
+
+    const recentEdge =
+        Math.max(
+            0,
+            recentRate -
+            baseline
+        );
+
+
+    let strength =
+        50 +
+        (
+            overallEdge *
+            300
+        ) +
+        (
+            recentEdge *
+            400
+        );
+
+
+    /*
+    Keep displayed score
+    between 50 and 95.
+    */
+
+    strength =
+        Math.max(
+            50,
+            Math.min(
+                95,
+                strength
+            )
+        );
+
+
+    strength =
+        Math.round(
+            strength
+        );
+
+
+    /* ============================
+       DISPLAY
+    ============================ */
+
+    document.getElementById(
+        "predictedDigit"
+    ).innerText =
+        bestDigit;
+
+
+    document.getElementById(
+        "strength"
+    ).innerText =
+        strength +
+        "%";
+
+
+    document.getElementById(
+        "strengthBar"
+    ).style.width =
+        strength +
+        "%";
+
+
+    let confidence;
+
+
+    if (strength >= 75) {
+
+        confidence =
+            "STRONG statistical signal";
+
+    }
+    else if (strength >= 60) {
+
+        confidence =
+            "MODERATE statistical signal";
+
+    }
+    else {
+
+        confidence =
+            "WEAK statistical signal";
+
+    }
+
+
+    document.getElementById(
+        "confidence"
+    ).innerText =
+        confidence;
 
 
     document.getElementById(
         "signal"
     ).innerText =
-
-        "Hot digit: "
-        +
-        hotDigit
-        +
-        " | Cold digit: "
-        +
-        coldDigit
-        +
-        " | Even: "
-        +
-        evenPercent
-        +
-        "% | Odd: "
-        +
-        oddPercent
-        +
-        "% | Over 5: "
-        +
-        overPercent
-        +
-        "% | Under 5: "
-        +
-        underPercent
-        +
+        "Predicted match digit: " +
+        bestDigit +
+        " | Signal strength: " +
+        strength +
+        "% | Recent sample: " +
+        recentRate.toFixed(1) +
+        "% | Overall sample: " +
+        (overallRate * 100)
+        .toFixed(1) +
         "%";
-
-
-    /*
-    Matches / Differs.
-    */
-
-
-    document.getElementById(
-        "matchDigit"
-    ).innerText =
-        hotDigit;
-
-
-    document.getElementById(
-        "matchFrequency"
-    ).innerText =
-        (
-            counts[hotDigit]
-            /
-            digits.length
-            *
-            100
-        ).toFixed(1)
-        +
-        "%";
-
-
-    document.getElementById(
-        "matchSignal"
-    ).innerText =
-        "Digit "
-        +
-        hotDigit
-        +
-        " has appeared most often in this sample";
-
-
-    /*
-    Even / Odd.
-    */
-
-
-    document.getElementById(
-        "evenSignal"
-    ).innerText =
-        evenPercent
-        +
-        "%";
-
-
-    document.getElementById(
-        "oddSignal"
-    ).innerText =
-        oddPercent
-        +
-        "%";
-
-
-    if (
-        evenCount >
-        oddCount
-    ) {
-
-
-        document.getElementById(
-            "evenOddSignal"
-        ).innerText =
-            "Even is currently more frequent";
-
-
-    }
-
-    else if (
-        oddCount >
-        evenCount
-    ) {
-
-
-        document.getElementById(
-            "evenOddSignal"
-        ).innerText =
-            "Odd is currently more frequent";
-
-
-    }
-
-    else {
-
-
-        document.getElementById(
-            "evenOddSignal"
-        ).innerText =
-            "Even and Odd are equal";
-
-
-    }
-
-
-    /*
-    Over / Under.
-    */
-
-
-    document.getElementById(
-        "overSignal"
-    ).innerText =
-        overPercent
-        +
-        "%";
-
-
-    document.getElementById(
-        "underSignal"
-    ).innerText =
-        underPercent
-        +
-        "%";
-
-
-    if (
-        overCount >
-        underCount
-    ) {
-
-
-        document.getElementById(
-            "overUnderSignal"
-        ).innerText =
-            "Over 5 is currently more frequent";
-
-
-    }
-
-    else if (
-        underCount >
-        overCount
-    ) {
-
-
-        document.getElementById(
-            "overUnderSignal"
-        ).innerText =
-            "Under 5 is currently more frequent";
-
-
-    }
-
-    else {
-
-
-        document.getElementById(
-            "overUnderSignal"
-        ).innerText =
-            "Over 5 and Under 5 are equal";
-
-
-    }
-
 
 }
 
 
-function displayDigits(
-    counts
-) {
+/* ================================
+   DIGIT DISPLAY
+================================ */
+
+function displayDigits(counts) {
 
 
     const container =
         document.getElementById(
             "digits"
         );
+
+
+    container.innerHTML = "";
 
 
     const max =
@@ -1430,48 +1309,41 @@ function displayDigits(
         );
 
 
-    container.innerHTML =
-        "";
-
-
     counts.forEach(
-        function(
-            count,
-            digit
-        ) {
+        function(count, digit) {
 
 
             const percentage =
                 (
-                    count
-                    /
+                    count /
                     digits.length
-                    *
-                    100
-                );
+                ) *
+                100;
 
 
             const width =
                 (
-                    count
-                    /
+                    count /
                     max
-                    *
-                    100
-                );
+                ) *
+                100;
 
 
             container.innerHTML += `
 
-                <div class="digit">
+                <div class="digit-box">
 
-                    <strong>
+                    <div class="digit-number">
                         ${digit}
-                    </strong>
+                    </div>
 
-                    <br>
+                    <div>
+                        ${count} times
+                    </div>
 
-                    ${count}
+                    <div class="small">
+                        ${percentage.toFixed(1)}%
+                    </div>
 
                     <div class="bar">
 
@@ -1482,25 +1354,36 @@ function displayDigits(
 
                     </div>
 
-                    <small>
-                        ${percentage.toFixed(1)}%
-                    </small>
-
                 </div>
 
             `;
 
-
         }
     );
-
 
 }
 
 
+/* ================================
+   PERCENTAGE
+================================ */
+
+function percent(
+    value,
+    total
+) {
+
+    return (
+        (
+            value /
+            total
+        ) *
+        100
+    ).toFixed(1);
+
+}
+
 </script>
 
-
 </body>
-
 </html>
