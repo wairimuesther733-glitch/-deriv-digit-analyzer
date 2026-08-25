@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriv Digit Analyzer</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1020;
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.card {
+    background: #151c33;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #9ca8c4;
+}
+
+select,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+}
+
+button {
+    background: #ff3b7f;
+    color: white;
+    font-weight: bold;
+}
+
+.status {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: #35405e;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.stat {
+    background: #0e1528;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.value {
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.digits {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 6px;
+}
+
+.digit {
+    background: #0e1528;
+    padding: 10px 4px;
+    text-align: center;
+    border-radius: 7px;
+}
+
+.bar {
+    height: 5px;
+    background: #35405e;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+
+.fill {
+    height: 100%;
+    background: #ff3b7f;
+    border-radius: 5px;
+}
+
+.signal {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.warning {
+    color: #9ca8c4;
+    font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Deriv Digit Analyzer</h1>
+
+<p class="subtitle">
+Live analysis for Matches/Differs, Even/Odd and Over/Under.
+</p>
+
+<div class="card">
+
+<label>Market</label>
+
+<select id="symbol">
+
+<option value="R_10">Volatility 10 Index</option>
+<option value="R_25">Volatility 25 Index</option>
+<option value="R_50">Volatility 50 Index</option>
+<option value="R_75">Volatility 75 Index</option>
+<option value="R_100">Volatility 100 Index</option>
+
+</select>
+
+<br>
+
+<label>Number of ticks</label>
+
+<select id="sample">
+
+<option value="100">100</option>
+<option value="250" selected>250</option>
+<option value="500">500</option>
+<option value="1000">1000</option>
+
+</select>
+
+<br>
+
+<button onclick="startAnalyzer()">
+START ANALYSIS
+</button>
+
+</div>
+
+<div class="card">
+
+<span id="status" class="status">
+Disconnected
+</span>
+
+<span id="tickCount">
+0 ticks
+</span>
+
+</div>
+
+<div class="card stats">
+
+<div class="stat">
+<div>Hot Digit</div>
+<div id="hot" class="value">—</div>
+</div>
+
+<div class="stat">
+<div>Cold Digit</div>
+<div id="cold" class="value">—</div>
+</div>
+
+<div class="stat">
+<div>Even</div>
+<div id="even" class="value">—</div>
+</div>
+
+<div class="stat">
+<div>Odd</div>
+<div id="odd" class="value">—</div>
+</div>
+
+<div class="stat">
+<div>Over 5</div>
+<div id="over" class="value">—</div>
+</div>
+
+<div class="stat">
+<div>Under 5</div>
+<div id="under" class="value">—</div>
+</div>
+
+</div>
+
+<div class="card">
+
+<h2>Digit Distribution</h2>
+
+<div id="digits" class="digits"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Current Analysis</h2>
+
+<div id="signal" class="signal">
+Waiting for data...
+</div>
+
+<p class="warning">
+This analyzer provides statistical information only.
+It does not guarantee the next digit and does not place trades.
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+let websocket;
+let digits = [];
+
+const APP_ID = "1089";
+
+function startAnalyzer() {
+
+    if (websocket) {
+        websocket.close();
+    }
+
+    digits = [];
+
+    document.getElementById("status").innerText =
+        "Connecting...";
+
+    websocket = new WebSocket(
+        "wss://ws.derivws.com/websockets/v3?app_id=" + APP_ID
+    );
+
+    websocket.onopen = function () {
+
+        document.getElementById("status").innerText =
+            "Connected";
+
+        const symbol =
+            document.getElementById("symbol").value;
+
+        websocket.send(JSON.stringify({
+            ticks: symbol,
+            subscribe: 1
+        }));
+
+    };
+
+    websocket.onmessage = function(event) {
+
+        const data = JSON.parse(event.data);
+
+        if (!data.tick) return;
+
+        const quote = String(data.tick.quote);
+
+        const lastDigit =
+            Number(quote.replace(/\D/g, "").slice(-1));
+
+        if (!Number.isNaN(lastDigit)) {
+
+            digits.push(lastDigit);
+
+            const limit =
+                Number(document.getElementById("sample").value);
+
+            if (digits.length > limit) {
+                digits.shift();
+            }
+
+            analyze();
+        }
+    };
+
+    websocket.onerror = function() {
+
+        document.getElementById("status").innerText =
+            "Connection error";
+
+    };
+
+    websocket.onclose = function() {
+
+        document.getElementById("status").innerText =
+            "Disconnected";
+
+    };
+}
+
+
+function analyze() {
+
+    if (digits.length === 0) return;
+
+    const counts = new Array(10).fill(0);
+
+    digits.forEach(function(digit) {
+        counts[digit]++;
+    });
+
+    let hotDigit = 0;
+    let coldDigit = 0;
+
+    for (let i = 1; i < 10; i++) {
+
+        if (counts[i] > counts[hotDigit]) {
+            hotDigit = i;
+        }
+
+        if (counts[i] < counts[coldDigit]) {
+            coldDigit = i;
+        }
+    }
+
+    const evenCount =
+        digits.filter(d => d % 2 === 0).length;
+
+    const oddCount =
+        digits.length - evenCount;
+
+    const overCount =
+        digits.filter(d => d > 5).length;
+
+    const underCount =
+        digits.filter(d => d < 5).length;
+
+    document.getElementById("hot").innerText =
+        hotDigit + " (" + counts[hotDigit] + ")";
+
+    document.getElementById("cold").innerText =
+        coldDigit + " (" + counts[coldDigit] + ")";
+
+    document.getElementById("even").innerText =
+        ((evenCount / digits.length) * 100).toFixed(1) + "%";
+
+    document.getElementById("odd").innerText =
+        ((oddCount / digits.length) * 100).toFixed(1) + "%";
+
+    document.getElementById("over").innerText =
+        ((overCount / digits.length) * 100).toFixed(1) + "%";
+
+    document.getElementById("under").innerText =
+        ((underCount / digits.length) * 100).toFixed(1) + "%";
+
+    document.getElementById("tickCount").innerText =
+        digits.length + " ticks";
+
+    displayDigits(counts);
+
+    document.getElementById("signal").innerText =
+        "Hot: " + hotDigit +
+        " | Cold: " + coldDigit +
+        " | Even: " +
+        ((evenCount / digits.length) * 100).toFixed(1) +
+        "% | Odd: " +
+        ((oddCount / digits.length) * 100).toFixed(1) +
+        "%";
+
+}
+
+
+function displayDigits(counts) {
+
+    const container =
+        document.getElementById("digits");
+
+    const max =
+        Math.max(...counts, 1);
+
+    container.innerHTML = "";
+
+    counts.forEach(function(count, digit) {
+
+        const percentage =
+            (count / digits.length) * 100;
+
+        const width =
+            (count / max) * 100;
+
+        container.innerHTML += `
+
+        <div class="digit">
+
+            <strong>${digit}</strong>
+
+            <br>
+
+            ${count}
+
+            <div class="bar">
+
+                <div
+                    class="fill"
+                    style="width:${width}%">
+                </div>
+
+            </div>
+
+            <small>
+                ${percentage.toFixed(1)}%
+            </small>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+</script>
+
+</body>
+</html>
