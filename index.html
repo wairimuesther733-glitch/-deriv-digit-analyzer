@@ -240,8 +240,8 @@ function startAnalyzer() {
         Number(document.getElementById("sample").value);
 
     websocket = new WebSocket(
-        "wss://ws.binaryws.com/websockets/v3"
-    );
+    "wss://api.derivws.com/trading/v1/options/ws/public"
+);
 
     websocket.onopen = function() {
 
