@@ -34,8 +34,7 @@ h1 {
     color: #9ca8c4;
 }
 
-select,
-button {
+select, button {
     width: 100%;
     padding: 12px;
     margin-top: 8px;
@@ -128,13 +127,11 @@ Live analysis for Matches/Differs, Even/Odd and Over/Under.
 <label>Market</label>
 
 <select id="symbol">
-
 <option value="1HZ10V">Volatility 10 Index</option>
 <option value="1HZ25V">Volatility 25 Index</option>
 <option value="1HZ50V">Volatility 50 Index</option>
 <option value="1HZ75V">Volatility 75 Index</option>
 <option value="1HZ100V">Volatility 100 Index</option>
-
 </select>
 
 <br>
@@ -142,31 +139,23 @@ Live analysis for Matches/Differs, Even/Odd and Over/Under.
 <label>Number of ticks</label>
 
 <select id="sample">
-
 <option value="100">100</option>
 <option value="250" selected>250</option>
 <option value="500">500</option>
 <option value="1000">1000</option>
-
 </select>
 
 <br>
 
-<button onclick="startAnalyzer()">
-START ANALYSIS
-</button>
+<button onclick="startAnalyzer()">START ANALYSIS</button>
 
 </div>
 
 <div class="card">
 
-<span id="status" class="status">
-Disconnected
-</span>
+<span id="status" class="status">Disconnected</span>
 
-<span id="tickCount">
-0 ticks
-</span>
+<span id="tickCount">0 ticks</span>
 
 </div>
 
@@ -229,204 +218,10 @@ It does not guarantee the next digit and does not place trades.
 
 </div>
 
-
-function startAnalyzer() {
-
-    if (websocket) {
-        websocket.close();
-    }
-
-    digits = [];
-
-    document.getElementById("status").innerText =
-        "Connecting...";
-
-    websocket = new WebSocket(
-        "wss://ws.binaryws.com/websockets/v3?app_id=" + APP_ID
-    );
-
-    websocket.onopen = function () {
-
-        document.getElementById("status").innerText =
-            "Connected";
-
-        const symbol =
-            document.getElementById("symbol").value;
-
-        websocket.send(JSON.stringify({
-            ticks: symbol,
-            subscribe: 1
-        }));
-
-    };
-
-    websocket.onmessage = function(event) {
-
-        const data = JSON.parse(event.data);
-
-        if (!data.tick) return;
-
-        const quote = String(data.tick.quote);
-
-        const lastDigit =
-            Number(quote.replace(/\D/g, "").slice(-1));
-
-        if (!Number.isNaN(lastDigit)) {
-
-            digits.push(lastDigit);
-
-            const limit =
-                Number(document.getElementById("sample").value);
-
-            if (digits.length > limit) {
-                digits.shift();
-            }
-
-            analyze();
-        }
-    };
-
-    websocket.onerror = function() {
-
-        document.getElementById("status").innerText =
-            "Connection error";
-
-    };
-
-    websocket.onclose = function() {
-
-        document.getElementById("status").innerText =
-            "Disconnected";
-
-    };
-}
-
-
-function analyze() {
-
-    if (digits.length === 0) return;
-
-    const counts = new Array(10).fill(0);
-
-    digits.forEach(function(digit) {
-        counts[digit]++;
-    });
-
-    let hotDigit = 0;
-    let coldDigit = 0;
-
-    for (let i = 1; i < 10; i++) {
-
-        if (counts[i] > counts[hotDigit]) {
-            hotDigit = i;
-        }
-
-        if (counts[i] < counts[coldDigit]) {
-            coldDigit = i;
-        }
-    }
-
-    const evenCount =
-        digits.filter(d => d % 2 === 0).length;
-
-    const oddCount =
-        digits.length - evenCount;
-
-    const overCount =
-        digits.filter(d => d > 5).length;
-
-    const underCount =
-        digits.filter(d => d < 5).length;
-
-    document.getElementById("hot").innerText =
-        hotDigit + " (" + counts[hotDigit] + ")";
-
-    document.getElementById("cold").innerText =
-        coldDigit + " (" + counts[coldDigit] + ")";
-
-    document.getElementById("even").innerText =
-        ((evenCount / digits.length) * 100).toFixed(1) + "%";
-
-    document.getElementById("odd").innerText =
-        ((oddCount / digits.length) * 100).toFixed(1) + "%";
-
-    document.getElementById("over").innerText =
-        ((overCount / digits.length) * 100).toFixed(1) + "%";
-
-    document.getElementById("under").innerText =
-        ((underCount / digits.length) * 100).toFixed(1) + "%";
-
-    document.getElementById("tickCount").innerText =
-        digits.length + " ticks";
-
-    displayDigits(counts);
-
-    document.getElementById("signal").innerText =
-        "Hot: " + hotDigit +
-        " | Cold: " + coldDigit +
-        " | Even: " +
-        ((evenCount / digits.length) * 100).toFixed(1) +
-        "% | Odd: " +
-        ((oddCount / digits.length) * 100).toFixed(1) +
-        "%";
-
-}
-
-
-function displayDigits(counts) {
-
-    const container =
-        document.getElementById("digits");
-
-    const max =
-        Math.max(...counts, 1);
-
-    container.innerHTML = "";
-
-    counts.forEach(function(count, digit) {
-
-        const percentage =
-            (count / digits.length) * 100;
-
-        const width =
-            (count / max) * 100;
-
-        container.innerHTML += `
-
-        <div class="digit">
-
-            <strong>${digit}</strong>
-
-            <br>
-
-            ${count}
-
-            <div class="bar">
-
-                <div
-                    class="fill"
-                    style="width:${width}%">
-                </div>
-
-            </div>
-
-            <small>
-                ${percentage.toFixed(1)}%
-            </small>
-
-        </div>
-
-        `;
-
-    });
-
-}
 <script>
 
 let websocket = null;
 let digits = [];
-
-const DEFAULT_SAMPLE = 250;
 
 function startAnalyzer() {
 
@@ -438,18 +233,20 @@ function startAnalyzer() {
 
     updateStatus("Connecting...");
 
-    const symbol = document.getElementById("symbol").value;
-    const sample = Number(document.getElementById("sample").value) || DEFAULT_SAMPLE;
+    const symbol =
+        document.getElementById("symbol").value;
+
+    const sample =
+        Number(document.getElementById("sample").value);
 
     websocket = new WebSocket(
         "wss://ws.binaryws.com/websockets/v3"
     );
 
-    websocket.onopen = function () {
+    websocket.onopen = function() {
 
         updateStatus("Connected - loading data...");
 
-        // First get historical ticks.
         websocket.send(JSON.stringify({
             ticks_history: symbol,
             end: "latest",
@@ -458,7 +255,6 @@ function startAnalyzer() {
             req_id: 1
         }));
 
-        // Then subscribe to new ticks.
         websocket.send(JSON.stringify({
             ticks: symbol,
             subscribe: 1,
@@ -470,18 +266,20 @@ function startAnalyzer() {
 
         const data = JSON.parse(event.data);
 
-        console.log("Deriv response:", data);
-
-        // Show API errors instead of silently failing.
         if (data.error) {
-            updateStatus("API error: " + data.error.message);
+            updateStatus(
+                "API error: " + data.error.message
+            );
             return;
         }
 
-        // Historical tick response.
-        if (data.msg_type === "history" && data.history) {
+        if (
+            data.msg_type === "history" &&
+            data.history
+        ) {
 
-            const prices = data.history.prices || [];
+            const prices =
+                data.history.prices || [];
 
             digits = prices.map(function(price) {
                 return getLastDigit(price);
@@ -494,16 +292,21 @@ function startAnalyzer() {
             analyze();
 
             updateStatus(
-                "Connected - " + digits.length + " historical ticks"
+                "Loaded " +
+                digits.length +
+                " historical ticks"
             );
 
             return;
         }
 
-        // Live tick response.
-        if (data.msg_type === "tick" && data.tick) {
+        if (
+            data.msg_type === "tick" &&
+            data.tick
+        ) {
 
-            const digit = getLastDigit(data.tick.quote);
+            const digit =
+                getLastDigit(data.tick.quote);
 
             digits.push(digit);
 
@@ -513,9 +316,9 @@ function startAnalyzer() {
 
             analyze();
 
-            updateStatus("LIVE - receiving ticks");
-
-            return;
+            updateStatus(
+                "LIVE - receiving ticks"
+            );
         }
     };
 
@@ -533,16 +336,19 @@ function getLastDigit(price) {
 
     const text = String(price);
 
-    const digitsOnly = text.replace(/\D/g, "");
+    const digitsOnly =
+        text.replace(/\D/g, "");
 
-    return Number(digitsOnly.slice(-1));
+    return Number(
+        digitsOnly.slice(-1)
+    );
 }
 
 
 function updateStatus(message) {
 
-    document.getElementById("status").innerText = message;
-
+    document.getElementById("status")
+        .innerText = message;
 }
 
 
@@ -552,16 +358,15 @@ function analyze() {
         return;
     }
 
-    const counts = new Array(10).fill(0);
+    const counts =
+        new Array(10).fill(0);
 
     digits.forEach(function(digit) {
         counts[digit]++;
     });
 
-
-    // HOT DIGIT
-
     let hotDigit = 0;
+    let coldDigit = 0;
 
     for (let i = 1; i < 10; i++) {
 
@@ -569,23 +374,10 @@ function analyze() {
             hotDigit = i;
         }
 
-    }
-
-
-    // COLD DIGIT
-
-    let coldDigit = 0;
-
-    for (let i = 1; i < 10; i++) {
-
         if (counts[i] < counts[coldDigit]) {
             coldDigit = i;
         }
-
     }
-
-
-    // EVEN / ODD
 
     const evenCount =
         digits.filter(function(d) {
@@ -594,9 +386,6 @@ function analyze() {
 
     const oddCount =
         digits.length - evenCount;
-
-
-    // OVER / UNDER 5
 
     const overCount =
         digits.filter(function(d) {
@@ -608,47 +397,51 @@ function analyze() {
             return d < 5;
         }).length;
 
-
     document.getElementById("hot").innerText =
-        hotDigit + " (" + counts[hotDigit] + ")";
-
+        hotDigit +
+        " (" +
+        counts[hotDigit] +
+        ")";
 
     document.getElementById("cold").innerText =
-        coldDigit + " (" + counts[coldDigit] + ")";
-
+        coldDigit +
+        " (" +
+        counts[coldDigit] +
+        ")";
 
     document.getElementById("even").innerText =
-        ((evenCount / digits.length) * 100).toFixed(1) + "%";
-
+        ((evenCount / digits.length) * 100)
+        .toFixed(1) + "%";
 
     document.getElementById("odd").innerText =
-        ((oddCount / digits.length) * 100).toFixed(1) + "%";
-
+        ((oddCount / digits.length) * 100)
+        .toFixed(1) + "%";
 
     document.getElementById("over").innerText =
-        ((overCount / digits.length) * 100).toFixed(1) + "%";
-
+        ((overCount / digits.length) * 100)
+        .toFixed(1) + "%";
 
     document.getElementById("under").innerText =
-        ((underCount / digits.length) * 100).toFixed(1) + "%";
-
+        ((underCount / digits.length) * 100)
+        .toFixed(1) + "%";
 
     document.getElementById("tickCount").innerText =
         digits.length + " ticks";
 
-
     displayDigits(counts);
 
-
     document.getElementById("signal").innerText =
-        "Hot: " + hotDigit +
-        " | Cold: " + coldDigit +
+        "Hot: " +
+        hotDigit +
+        " | Cold: " +
+        coldDigit +
         " | Even: " +
-        ((evenCount / digits.length) * 100).toFixed(1) +
+        ((evenCount / digits.length) * 100)
+        .toFixed(1) +
         "% | Odd: " +
-        ((oddCount / digits.length) * 100).toFixed(1) +
+        ((oddCount / digits.length) * 100)
+        .toFixed(1) +
         "%";
-
 }
 
 
@@ -662,7 +455,6 @@ function displayDigits(counts) {
 
     container.innerHTML = "";
 
-
     counts.forEach(function(count, digit) {
 
         const percentage =
@@ -671,9 +463,7 @@ function displayDigits(counts) {
         const width =
             (count / max) * 100;
 
-
         container.innerHTML += `
-
         <div class="digit">
 
             <strong>${digit}</strong>
@@ -696,11 +486,8 @@ function displayDigits(counts) {
             </small>
 
         </div>
-
         `;
-
     });
-
 }
 
 </script>
