@@ -1,74 +1,1506 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deriv Connection Test</title>
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Deriv Digit Analyzer</title>
+
+<style>
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0b1020;
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 950px;
+    margin: auto;
+}
+
+.card {
+    background: #151c33;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+h1 {
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    color: #9ca8c4;
+}
+
+select,
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+button {
+    background: #ff3b7f;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.99);
+}
+
+.status {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: 20px;
+    background: #35405e;
+    margin-right: 10px;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns:
+    repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.stat {
+    background: #0e1528;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.value {
+    font-size: 25px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.latest {
+    font-size: 40px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.digits {
+    display: grid;
+    grid-template-columns:
+    repeat(10, 1fr);
+    gap: 6px;
+}
+
+.digit {
+    background: #0e1528;
+    padding: 10px 4px;
+    text-align: center;
+    border-radius: 7px;
+}
+
+.bar {
+    height: 5px;
+    background: #35405e;
+    margin-top: 5px;
+    border-radius: 5px;
+}
+
+.fill {
+    height: 100%;
+    background: #ff3b7f;
+    border-radius: 5px;
+}
+
+.signal {
+    font-size: 19px;
+    font-weight: bold;
+    line-height: 1.6;
+}
+
+.good {
+    color: #55efc4;
+}
+
+.warning {
+    color: #9ca8c4;
+    font-size: 13px;
+}
+
+.error {
+    color: #ff7675;
+    margin-top: 10px;
+    word-break: break-word;
+}
+
+.section-title {
+    margin-bottom: 10px;
+}
+
+.analysis-box {
+    background: #0e1528;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+</style>
+
 </head>
+
 
 <body>
 
-<h1>Deriv Connection Test</h1>
 
-<h2 id="status">Connecting...</h2>
+<div class="container">
 
-<p id="details">Testing new Deriv public WebSocket...</p>
+
+<h1>
+Deriv Digit Analyzer
+</h1>
+
+
+<p class="subtitle">
+
+Live statistical analysis for
+Matches/Differs, Even/Odd
+and Over/Under.
+
+</p>
+
+
+<div class="card">
+
+
+<label>
+Market
+</label>
+
+
+<select id="symbol">
+
+<option value="1HZ10V">
+Volatility 10 Index
+</option>
+
+<option value="1HZ25V">
+Volatility 25 Index
+</option>
+
+<option value="1HZ50V">
+Volatility 50 Index
+</option>
+
+<option value="1HZ75V">
+Volatility 75 Index
+</option>
+
+<option value="1HZ100V">
+Volatility 100 Index
+</option>
+
+</select>
+
+
+<br>
+
+
+<label>
+Number of ticks
+</label>
+
+
+<select id="sample">
+
+<option value="100">
+100
+</option>
+
+<option value="250" selected>
+250
+</option>
+
+<option value="500">
+500
+</option>
+
+<option value="1000">
+1000
+</option>
+
+</select>
+
+
+<br>
+
+
+<button onclick="startAnalyzer()">
+
+START ANALYSIS
+
+</button>
+
+
+</div>
+
+
+<div class="card">
+
+
+<span id="status"
+class="status">
+
+Disconnected
+
+</span>
+
+
+<span id="tickCount">
+
+0 ticks
+
+</span>
+
+
+<div id="error"
+class="error">
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<div>
+Latest Digit
+</div>
+
+
+<div id="latestDigit"
+class="latest">
+
+—
+
+</div>
+
+
+</div>
+
+
+<div class="card stats">
+
+
+<div class="stat">
+
+<div>
+Hot Digit
+</div>
+
+<div id="hot"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Cold Digit
+</div>
+
+<div id="cold"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Even
+</div>
+
+<div id="even"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Odd
+</div>
+
+<div id="odd"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Over 5
+</div>
+
+<div id="over"
+class="value">
+—
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div>
+Under 5
+</div>
+
+<div id="under"
+class="value">
+—
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<h2 class="section-title">
+
+Digit Distribution
+
+</h2>
+
+
+<div id="digits"
+class="digits">
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<h2>
+
+Current Analysis
+
+</h2>
+
+
+<div id="signal"
+class="signal">
+
+Waiting for data...
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<h2>
+
+Matches / Differs
+
+</h2>
+
+
+<div class="analysis-box">
+
+<div>
+Most frequent digit:
+<strong id="matchDigit">—</strong>
+</div>
+
+<div>
+Frequency:
+<strong id="matchFrequency">—</strong>
+</div>
+
+<div>
+Suggested observation:
+<strong id="matchSignal">Waiting</strong>
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<h2>
+
+Even / Odd
+
+</h2>
+
+
+<div class="analysis-box">
+
+<div>
+Even:
+<strong id="evenSignal">—</strong>
+</div>
+
+<div>
+Odd:
+<strong id="oddSignal">—</strong>
+</div>
+
+<div>
+Current balance:
+<strong id="evenOddSignal">Waiting</strong>
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<h2>
+
+Over / Under 5
+
+</h2>
+
+
+<div class="analysis-box">
+
+<div>
+Over 5:
+<strong id="overSignal">—</strong>
+</div>
+
+<div>
+Under 5:
+<strong id="underSignal">—</strong>
+</div>
+
+<div>
+Current balance:
+<strong id="overUnderSignal">Waiting</strong>
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="card">
+
+
+<p class="warning">
+
+This tool provides statistical information only.
+It does not guarantee the next digit
+and does not place trades.
+
+</p>
+
+
+</div>
+
+
+</div>
+
 
 <script>
 
-const status = document.getElementById("status");
-const details = document.getElementById("details");
 
-const ws = new WebSocket(
-    "wss://api.derivws.com/trading/v1/options/ws/public"
-);
+let websocket = null;
 
-ws.onopen = function () {
+let digits = [];
 
-    status.innerText = "CONNECTED ✅";
 
-    details.innerText =
-        "New Deriv public WebSocket connected.";
+/*
+NEW DERIV PUBLIC WEBSOCKET
+This is the endpoint that successfully
+connected during our test.
+*/
 
-    ws.send(JSON.stringify({
-        ping: 1
-    }));
 
-};
+const DERIV_URL =
+"wss://api.derivws.com/trading/v1/options/ws/public";
 
-ws.onmessage = function (event) {
 
-    console.log(event.data);
+function startAnalyzer() {
 
-    status.innerText =
-        "CONNECTED + RECEIVING DATA ✅";
 
-    details.innerText =
-        "Deriv public API responded successfully.";
+    /*
+    Close previous connection.
+    */
 
-};
 
-ws.onerror = function () {
+    if (websocket) {
 
-    status.innerText =
-        "CONNECTION ERROR ❌";
+        try {
 
-    details.innerText =
-        "The browser could not establish the connection.";
+            websocket.close();
 
-};
+        }
 
-ws.onclose = function (event) {
+        catch (error) {}
 
-    status.innerText =
-        "CONNECTION CLOSED ❌";
+    }
 
-    details.innerText =
-        "Close code: " + event.code;
 
-};
+    /*
+    Clear previous data.
+    */
+
+
+    digits = [];
+
+
+    document.getElementById(
+        "tickCount"
+    ).innerText =
+        "0 ticks";
+
+
+    document.getElementById(
+        "latestDigit"
+    ).innerText =
+        "—";
+
+
+    document.getElementById(
+        "error"
+    ).innerText =
+        "";
+
+
+    document.getElementById(
+        "signal"
+    ).innerText =
+        "Connecting...";
+
+
+    /*
+    Connect.
+    */
+
+
+    websocket =
+        new WebSocket(
+            DERIV_URL
+        );
+
+
+    websocket.onopen =
+        function() {
+
+
+            updateStatus(
+                "Connected"
+            );
+
+
+            /*
+            Tell the public endpoint
+            which underlying symbol
+            we want.
+            */
+
+
+            const symbol =
+                document.getElementById(
+                    "symbol"
+                ).value;
+
+
+            /*
+            Request ticks.
+            */
+
+
+            websocket.send(
+                JSON.stringify({
+
+                    ticks:
+                        symbol,
+
+                    subscribe:
+                        1
+
+                })
+            );
+
+
+        };
+
+
+    websocket.onmessage =
+        function(event) {
+
+
+            let data;
+
+
+            try {
+
+                data =
+                    JSON.parse(
+                        event.data
+                    );
+
+            }
+
+            catch (error) {
+
+                return;
+
+            }
+
+
+            console.log(
+                "DERIV:",
+                data
+            );
+
+
+            /*
+            Display API errors.
+            */
+
+
+            if (data.error) {
+
+                showError(
+                    data.error.message
+                );
+
+                return;
+
+            }
+
+
+            /*
+            Handle tick data.
+            */
+
+
+            if (
+                data.tick
+            ) {
+
+
+                const quote =
+                    data.tick.quote;
+
+
+                const digit =
+                    getLastDigit(
+                        quote
+                    );
+
+
+                digits.push(
+                    digit
+                );
+
+
+                const sample =
+                    Number(
+                        document.getElementById(
+                            "sample"
+                        ).value
+                    );
+
+
+                /*
+                Keep only the selected
+                number of ticks.
+                */
+
+
+                if (
+                    digits.length
+                    >
+                    sample
+                ) {
+
+                    digits.shift();
+
+                }
+
+
+                /*
+                Display latest digit.
+                */
+
+
+                document.getElementById(
+                    "latestDigit"
+                ).innerText =
+                    digit;
+
+
+                /*
+                Analyze.
+                */
+
+
+                analyze();
+
+
+                updateStatus(
+                    "LIVE - receiving ticks"
+                );
+
+
+            }
+
+
+        };
+
+
+    websocket.onerror =
+        function() {
+
+
+            updateStatus(
+                "Connection error"
+            );
+
+
+            showError(
+                "Connection to Deriv failed."
+            );
+
+
+        };
+
+
+    websocket.onclose =
+        function(event) {
+
+
+            updateStatus(
+                "Disconnected"
+            );
+
+
+            /*
+            Only display an error if
+            there was actually a close code.
+            */
+
+
+            if (
+                event.code
+            ) {
+
+                showError(
+                    "Connection closed. Code: "
+                    +
+                    event.code
+                );
+
+            }
+
+
+        };
+
+
+}
+
+
+function getLastDigit(
+    price
+) {
+
+
+    /*
+    Convert price to text.
+    */
+
+
+    const text =
+        String(price);
+
+
+    /*
+    Find decimal part.
+    */
+
+
+    if (
+        text.includes(".")
+    ) {
+
+
+        const parts =
+            text.split(".");
+
+
+        const decimal =
+            parts[1];
+
+
+        if (
+            decimal
+            &&
+            decimal.length > 0
+        ) {
+
+
+            return Number(
+                decimal[
+                    decimal.length - 1
+                ]
+            );
+
+
+        }
+
+    }
+
+
+    /*
+    Fallback.
+    */
+
+
+    const numbers =
+        text.replace(
+            /\D/g,
+            ""
+        );
+
+
+    return Number(
+        numbers.slice(-1)
+    );
+
+
+}
+
+
+function updateStatus(
+    message
+) {
+
+
+    document.getElementById(
+        "status"
+    ).innerText =
+        message;
+
+
+}
+
+
+function showError(
+    message
+) {
+
+
+    document.getElementById(
+        "error"
+    ).innerText =
+        message;
+
+
+}
+
+
+function analyze() {
+
+
+    if (
+        digits.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+    Count digits 0-9.
+    */
+
+
+    const counts =
+        new Array(10)
+        .fill(0);
+
+
+    digits.forEach(
+        function(digit) {
+
+            counts[digit]++;
+
+        }
+    );
+
+
+    /*
+    HOT DIGIT
+    */
+
+
+    let hotDigit = 0;
+
+
+    for (
+        let i = 1;
+        i < 10;
+        i++
+    ) {
+
+
+        if (
+            counts[i]
+            >
+            counts[hotDigit]
+        ) {
+
+            hotDigit = i;
+
+        }
+
+    }
+
+
+    /*
+    COLD DIGIT
+    */
+
+
+    let coldDigit = 0;
+
+
+    for (
+        let i = 1;
+        i < 10;
+        i++
+    ) {
+
+
+        if (
+            counts[i]
+            <
+            counts[coldDigit]
+        ) {
+
+            coldDigit = i;
+
+        }
+
+    }
+
+
+    /*
+    EVEN.
+    */
+
+
+    const evenCount =
+        digits.filter(
+            function(digit) {
+
+                return (
+                    digit % 2 === 0
+                );
+
+            }
+        ).length;
+
+
+    /*
+    ODD.
+    */
+
+
+    const oddCount =
+        digits.length
+        -
+        evenCount;
+
+
+    /*
+    OVER 5.
+    */
+
+
+    const overCount =
+        digits.filter(
+            function(digit) {
+
+                return digit > 5;
+
+            }
+        ).length;
+
+
+    /*
+    UNDER 5.
+    */
+
+
+    const underCount =
+        digits.filter(
+            function(digit) {
+
+                return digit < 5;
+
+            }
+        ).length;
+
+
+    /*
+    Percentages.
+    */
+
+
+    const evenPercent =
+        (
+            evenCount
+            /
+            digits.length
+            *
+            100
+        ).toFixed(1);
+
+
+    const oddPercent =
+        (
+            oddCount
+            /
+            digits.length
+            *
+            100
+        ).toFixed(1);
+
+
+    const overPercent =
+        (
+            overCount
+            /
+            digits.length
+            *
+            100
+        ).toFixed(1);
+
+
+    const underPercent =
+        (
+            underCount
+            /
+            digits.length
+            *
+            100
+        ).toFixed(1);
+
+
+    /*
+    Main statistics.
+    */
+
+
+    document.getElementById(
+        "hot"
+    ).innerText =
+        hotDigit
+        +
+        " ("
+        +
+        counts[hotDigit]
+        +
+        ")";
+
+
+    document.getElementById(
+        "cold"
+    ).innerText =
+        coldDigit
+        +
+        " ("
+        +
+        counts[coldDigit]
+        +
+        ")";
+
+
+    document.getElementById(
+        "even"
+    ).innerText =
+        evenPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "odd"
+    ).innerText =
+        oddPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "over"
+    ).innerText =
+        overPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "under"
+    ).innerText =
+        underPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "tickCount"
+    ).innerText =
+        digits.length
+        +
+        " ticks";
+
+
+    /*
+    Digit distribution.
+    */
+
+
+    displayDigits(
+        counts
+    );
+
+
+    /*
+    Current analysis.
+    */
+
+
+    document.getElementById(
+        "signal"
+    ).innerText =
+
+        "Hot digit: "
+        +
+        hotDigit
+        +
+        " | Cold digit: "
+        +
+        coldDigit
+        +
+        " | Even: "
+        +
+        evenPercent
+        +
+        "% | Odd: "
+        +
+        oddPercent
+        +
+        "% | Over 5: "
+        +
+        overPercent
+        +
+        "% | Under 5: "
+        +
+        underPercent
+        +
+        "%";
+
+
+    /*
+    Matches / Differs.
+    */
+
+
+    document.getElementById(
+        "matchDigit"
+    ).innerText =
+        hotDigit;
+
+
+    document.getElementById(
+        "matchFrequency"
+    ).innerText =
+        (
+            counts[hotDigit]
+            /
+            digits.length
+            *
+            100
+        ).toFixed(1)
+        +
+        "%";
+
+
+    document.getElementById(
+        "matchSignal"
+    ).innerText =
+        "Digit "
+        +
+        hotDigit
+        +
+        " has appeared most often in this sample";
+
+
+    /*
+    Even / Odd.
+    */
+
+
+    document.getElementById(
+        "evenSignal"
+    ).innerText =
+        evenPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "oddSignal"
+    ).innerText =
+        oddPercent
+        +
+        "%";
+
+
+    if (
+        evenCount >
+        oddCount
+    ) {
+
+
+        document.getElementById(
+            "evenOddSignal"
+        ).innerText =
+            "Even is currently more frequent";
+
+
+    }
+
+    else if (
+        oddCount >
+        evenCount
+    ) {
+
+
+        document.getElementById(
+            "evenOddSignal"
+        ).innerText =
+            "Odd is currently more frequent";
+
+
+    }
+
+    else {
+
+
+        document.getElementById(
+            "evenOddSignal"
+        ).innerText =
+            "Even and Odd are equal";
+
+
+    }
+
+
+    /*
+    Over / Under.
+    */
+
+
+    document.getElementById(
+        "overSignal"
+    ).innerText =
+        overPercent
+        +
+        "%";
+
+
+    document.getElementById(
+        "underSignal"
+    ).innerText =
+        underPercent
+        +
+        "%";
+
+
+    if (
+        overCount >
+        underCount
+    ) {
+
+
+        document.getElementById(
+            "overUnderSignal"
+        ).innerText =
+            "Over 5 is currently more frequent";
+
+
+    }
+
+    else if (
+        underCount >
+        overCount
+    ) {
+
+
+        document.getElementById(
+            "overUnderSignal"
+        ).innerText =
+            "Under 5 is currently more frequent";
+
+
+    }
+
+    else {
+
+
+        document.getElementById(
+            "overUnderSignal"
+        ).innerText =
+            "Over 5 and Under 5 are equal";
+
+
+    }
+
+
+}
+
+
+function displayDigits(
+    counts
+) {
+
+
+    const container =
+        document.getElementById(
+            "digits"
+        );
+
+
+    const max =
+        Math.max(
+            ...counts,
+            1
+        );
+
+
+    container.innerHTML =
+        "";
+
+
+    counts.forEach(
+        function(
+            count,
+            digit
+        ) {
+
+
+            const percentage =
+                (
+                    count
+                    /
+                    digits.length
+                    *
+                    100
+                );
+
+
+            const width =
+                (
+                    count
+                    /
+                    max
+                    *
+                    100
+                );
+
+
+            container.innerHTML += `
+
+                <div class="digit">
+
+                    <strong>
+                        ${digit}
+                    </strong>
+
+                    <br>
+
+                    ${count}
+
+                    <div class="bar">
+
+                        <div
+                            class="fill"
+                            style="width:${width}%">
+                        </div>
+
+                    </div>
+
+                    <small>
+                        ${percentage.toFixed(1)}%
+                    </small>
+
+                </div>
+
+            `;
+
+
+        }
+    );
+
+
+}
+
 
 </script>
 
+
 </body>
+
 </html>
