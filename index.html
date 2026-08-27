@@ -4,12 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Deriv Connection Test</title>
+<title>Deriv WebSocket Diagnostic</title>
 
 <style>
-*{
-    box-sizing:border-box;
-}
 
 body{
     margin:0;
@@ -24,68 +21,31 @@ body{
     margin:auto;
 }
 
-h1{
-    font-size:32px;
-    margin-bottom:8px;
-}
-
-.subtitle{
-    color:#9ca8c4;
-    margin-bottom:20px;
-}
-
 .card{
     background:#141b30;
-    border-radius:16px;
     padding:20px;
+    border-radius:16px;
     margin-bottom:16px;
 }
 
-label{
-    display:block;
-    margin-top:12px;
-    margin-bottom:6px;
-    color:#c8d0e3;
-}
-
-select,
-button{
-    width:100%;
-    padding:15px;
-    border:0;
-    border-radius:10px;
-    font-size:16px;
-}
-
-select{
-    background:#f1f1f1;
-    color:#111;
-}
-
-button{
-    margin-top:18px;
-    background:#ff3b7f;
-    color:white;
-    font-weight:bold;
-}
-
-button:disabled{
-    opacity:.5;
+h1{
+    font-size:30px;
 }
 
 .status{
-    padding:15px;
+    padding:16px;
     border-radius:10px;
-    background:#252f4a;
+    background:#29324c;
     font-weight:bold;
+    margin:15px 0;
 }
 
-.good{
+.green{
     background:#123b2d;
     color:#55e6a5;
 }
 
-.bad{
+.red{
     background:#421d27;
     color:#ff8995;
 }
@@ -95,33 +55,32 @@ button:disabled{
     color:#ffd166;
 }
 
-.bigTick{
-    text-align:center;
-    font-size:38px;
+button{
+    width:100%;
+    padding:16px;
+    border:0;
+    border-radius:10px;
+    background:#ff3b7f;
+    color:white;
+    font-size:17px;
     font-weight:bold;
-    padding:20px 0;
-}
-
-.counter{
-    text-align:center;
-    color:#9ca8c4;
 }
 
 .log{
     background:#050811;
+    padding:15px;
     border-radius:10px;
-    padding:14px;
-    min-height:220px;
-    max-height:350px;
-    overflow-y:auto;
+    min-height:280px;
+    max-height:450px;
+    overflow:auto;
     font-family:monospace;
     font-size:13px;
     line-height:1.7;
 }
 
-.logLine{
-    border-bottom:1px solid #172038;
-    padding:3px 0;
+.line{
+    border-bottom:1px solid #182139;
+    padding:4px 0;
 }
 
 .success{
@@ -132,185 +91,144 @@ button:disabled{
     color:#ff8995;
 }
 
-.info{
-    color:#9ca8c4;
-}
-
 .warning{
     color:#ffd166;
 }
 
-.testBox{
+.info{
+    color:#9ca8c4;
+}
+
+.tick{
     text-align:center;
-    padding:15px;
-    background:#0c1325;
-    border-radius:10px;
-    margin-top:15px;
+    font-size:34px;
+    font-weight:bold;
+    padding:20px;
 }
 
 </style>
 </head>
 
+
 <body>
 
 <div class="container">
 
-    <div class="card">
+<div class="card">
 
-        <h1>🔌 Deriv Connection Test</h1>
+<h1>🔌 Deriv WebSocket Diagnostic</h1>
 
-        <div class="subtitle">
-            Public market-data connection
-        </div>
+<p class="info">
+This test checks both Deriv public WebSocket
+endpoints automatically.
+</p>
 
-        <label>Market</label>
+<button
+id="start"
+onclick="startDiagnostic()">
 
-        <select id="symbol">
+START CONNECTION TEST
 
-            <option value="1HZ10V">
-                Volatility 10 Index
-            </option>
+</button>
 
-            <option value="1HZ25V">
-                Volatility 25 Index
-            </option>
-
-            <option value="1HZ50V">
-                Volatility 50 Index
-            </option>
-
-            <option value="1HZ75V">
-                Volatility 75 Index
-            </option>
-
-            <option value="1HZ100V">
-                Volatility 100 Index
-            </option>
-
-        </select>
-
-        <button
-            id="connectButton"
-            onclick="connectDeriv()">
-
-            🔌 CONNECT TO DERIV
-
-        </button>
-
-    </div>
+</div>
 
 
-    <div class="card">
+<div class="card">
 
-        <div id="status"
-             class="status">
+<div
+id="status"
+class="status">
 
-            Status: NOT CONNECTED
+Status: READY
 
-        </div>
+</div>
 
-        <div class="bigTick">
+<div class="tick">
 
-            Last tick:
-            <span id="lastTick">—</span>
+Last tick:
+<span id="lastTick">—</span>
 
-        </div>
+</div>
 
-        <div class="counter">
-
-            Live ticks received:
-            <strong id="tickCount">0</strong>
-
-        </div>
-
-    </div>
+</div>
 
 
-    <div class="card">
+<div class="card">
 
-        <h2>📡 Connection Log</h2>
+<h2>📡 Diagnostic Log</h2>
 
-        <div id="log"
-             class="log">
+<div
+id="log"
+class="log">
 
-            <div class="logLine info">
-                Ready to connect.
-            </div>
+<div class="line info">
+Ready.
+</div>
 
-        </div>
+</div>
 
-    </div>
-
-
-    <div class="card">
-
-        <div class="testBox">
-
-            <strong>
-                Current test
-            </strong>
-
-            <p id="testMessage"
-               class="info">
-
-                Waiting for connection...
-
-            </p>
-
-        </div>
-
-    </div>
+</div>
 
 
-    <div class="card">
+<div class="card">
 
-        <p class="warning">
+<h3>What we are testing</h3>
 
-            ⚠️ This is only a connection and
-            market-data test.
+<p class="info">
 
-            No trades are placed and no account
-            credentials are used.
+<strong>Test 1:</strong><br>
+Current Deriv public endpoint
 
-        </p>
+<br><br>
 
-    </div>
+<strong>Test 2:</strong><br>
+Legacy Deriv public endpoint
+
+<br><br>
+
+If both fail with 1006, we'll stop changing
+the bot code and troubleshoot the network/browser
+connection.
+
+</p>
+
+</div>
 
 </div>
 
 
 <script>
 
-/* ==========================================
-   CONNECTION SETTINGS
-========================================== */
+/* =========================================
+   ENDPOINTS
+========================================= */
 
-/*
-    Current Deriv public market-data
-    WebSocket endpoint.
-*/
+const CURRENT_ENDPOINT =
+"wss://api.derivws.com/trading/v1/options/ws/public";
 
-const DERIV_WS =
-    "wss://api.derivws.com/trading/v1/options/ws/public";
+
+const LEGACY_ENDPOINT =
+"wss://ws.binaryws.com/websockets/v3";
 
 
 let ws = null;
 
-let liveTicks = 0;
+let testNumber = 0;
 
-let connected = false;
+let timeout = null;
 
 
-/* ==========================================
-   LOGGING
-========================================== */
+/* =========================================
+   LOG
+========================================= */
 
-function addLog(
-    message,
-    type = "info"
+function log(
+message,
+type="info"
 ){
 
-    const log =
+    const box =
         document.getElementById(
             "log"
         );
@@ -323,67 +241,108 @@ function addLog(
 
 
     line.className =
-        "logLine " +
+        "line " +
         type;
-
-
-    const time =
-        new Date()
-        .toLocaleTimeString();
 
 
     line.textContent =
         "[" +
-        time +
+        new Date()
+        .toLocaleTimeString() +
         "] " +
         message;
 
 
-    log.appendChild(
+    box.appendChild(
         line
     );
 
 
-    log.scrollTop =
-        log.scrollHeight;
+    box.scrollTop =
+        box.scrollHeight;
 
 }
 
 
-/* ==========================================
+/* =========================================
    STATUS
-========================================== */
+========================================= */
 
 function setStatus(
-    message,
-    type = ""
+message,
+type=""
 ){
 
-    const status =
+    const box =
         document.getElementById(
             "status"
         );
 
 
-    status.textContent =
+    box.textContent =
         "Status: " +
         message;
 
 
-    status.className =
+    box.className =
         "status " +
         type;
 
 }
 
 
-/* ==========================================
-   CONNECT
-========================================== */
+/* =========================================
+   START
+========================================= */
 
-function connectDeriv(){
+function startDiagnostic(){
 
-    /* Close previous connection */
+    document.getElementById(
+        "log"
+    ).innerHTML = "";
+
+
+    document.getElementById(
+        "lastTick"
+    ).textContent =
+        "—";
+
+
+    document.getElementById(
+        "start"
+    ).disabled =
+        true;
+
+
+    testNumber = 1;
+
+
+    log(
+        "Starting WebSocket diagnostic..."
+    );
+
+
+    log(
+        "Testing current Deriv endpoint."
+    );
+
+
+    testEndpoint(
+        CURRENT_ENDPOINT,
+        1
+    );
+
+}
+
+
+/* =========================================
+   TEST ENDPOINT
+========================================= */
+
+function testEndpoint(
+endpoint,
+number
+){
 
     if(ws){
 
@@ -391,62 +350,36 @@ function connectDeriv(){
             ws.close();
         }catch(e){}
 
-        ws = null;
+    }
+
+
+    if(timeout){
+
+        clearTimeout(
+            timeout
+        );
 
     }
 
 
-    liveTicks = 0;
-
-    connected = false;
-
-
-    document.getElementById(
-        "tickCount"
-    ).textContent = "0";
-
-
-    document.getElementById(
-        "lastTick"
-    ).textContent = "—";
-
-
-    document.getElementById(
-        "log"
-    ).innerHTML = "";
-
-
-    const symbol =
-        document.getElementById(
-            "symbol"
-        ).value;
-
-
-    document.getElementById(
-        "connectButton"
-    ).disabled = true;
-
-
     setStatus(
-        "CONNECTING...",
+        "TEST " +
+        number +
+        " - CONNECTING...",
         "yellow"
     );
 
 
-    document.getElementById(
-        "testMessage"
-    ).textContent =
-        "Opening Deriv public WebSocket...";
-
-
-    addLog(
-        "Opening WebSocket:",
+    log(
+        "Opening endpoint " +
+        number +
+        ":",
         "info"
     );
 
 
-    addLog(
-        DERIV_WS,
+    log(
+        endpoint,
         "info"
     );
 
@@ -455,83 +388,109 @@ function connectDeriv(){
 
         ws =
             new WebSocket(
-                DERIV_WS
+                endpoint
             );
 
     }
 
     catch(error){
 
-        addLog(
+        log(
             "Browser could not create WebSocket.",
             "error"
         );
 
 
-        addLog(
-            error.message,
-            "error"
-        );
-
-
-        setStatus(
-            "CONNECTION FAILED",
-            "bad"
-        );
-
-
-        document.getElementById(
-            "connectButton"
-        ).disabled = false;
-
+        nextTest();
 
         return;
 
     }
 
 
-    /* ======================================
+    /*
+       Give the handshake 8 seconds.
+    */
+
+    timeout =
+        setTimeout(
+            function(){
+
+                log(
+                    "Connection timeout.",
+                    "error"
+                );
+
+
+                try{
+                    ws.close();
+                }catch(e){}
+
+
+                nextTest();
+
+            },
+            8000
+        );
+
+
+    /* =====================================
        OPEN
-    ====================================== */
+    ===================================== */
 
     ws.onopen =
     function(){
 
-        connected = true;
-
-
-        setStatus(
-            "CONNECTED",
-            "good"
+        clearTimeout(
+            timeout
         );
 
 
-        addLog(
-            "WebSocket connection established.",
+        setStatus(
+            "CONNECTED - TEST " +
+            number,
+            "green"
+        );
+
+
+        log(
+            "SUCCESS: WebSocket connected!",
             "success"
         );
 
 
-        document.getElementById(
-            "testMessage"
-        ).textContent =
-            "Connected. Requesting market data...";
-
-
         /*
-            First request historical ticks.
+           Now send a very simple tick request.
         */
 
-        requestHistory(
-            symbol
+        log(
+            "Requesting live tick data..."
+        );
+
+
+        ws.send(
+
+            JSON.stringify({
+
+                ticks:
+                    "1HZ10V",
+
+                subscribe:
+                    1,
+
+                req_id:
+                    100 + number
+
+            })
+
         );
 
     };
 
 
-    /* ======================================
+    /* =====================================
        MESSAGE
-    ====================================== */
+    ===================================== */
 
     ws.onmessage =
     function(event){
@@ -550,8 +509,8 @@ function connectDeriv(){
 
         catch(error){
 
-            addLog(
-                "Received unreadable server message.",
+            log(
+                "Received non-JSON response.",
                 "error"
             );
 
@@ -560,13 +519,9 @@ function connectDeriv(){
         }
 
 
-        /*
-            Show server errors.
-        */
-
         if(data.error){
 
-            addLog(
+            log(
                 "Deriv API error: " +
                 (
                     data.error.message ||
@@ -578,389 +533,216 @@ function connectDeriv(){
             );
 
 
-            setStatus(
-                "API ERROR",
-                "bad"
-            );
-
-
             return;
 
         }
 
-
-        /*
-            Historical data.
-        */
-
-        if(
-            data.msg_type ===
-            "history"
-        ){
-
-            handleHistory(
-                data,
-                symbol
-            );
-
-
-            return;
-
-        }
-
-
-        /*
-            Live tick.
-        */
 
         if(
             data.msg_type ===
             "tick"
         ){
 
-            handleTick(
-                data
+            const quote =
+                data.tick.quote;
+
+
+            document.getElementById(
+                "lastTick"
+            ).textContent =
+                quote;
+
+
+            setStatus(
+                "🎉 CONNECTION WORKING!",
+                "green"
             );
 
+
+            log(
+                "LIVE TICK RECEIVED: " +
+                quote,
+                "success"
+            );
+
+
+            log(
+                "Endpoint " +
+                number +
+                " is WORKING.",
+                "success"
+            );
+
+
+            log(
+                "We can now put the predictor back.",
+                "success"
+            );
+
+
+            document.getElementById(
+                "start"
+            ).disabled =
+                false;
+
+
+            /*
+               Stop after successful test.
+            */
 
             return;
 
         }
 
-
-        /*
-            Other response.
-        */
-
-        if(
-            data.msg_type
-        ){
-
-            addLog(
-                "Received: " +
-                data.msg_type,
-                "info"
-            );
-
-        }
-
     };
 
 
-    /* ======================================
+    /* =====================================
        ERROR
-    ====================================== */
+    ===================================== */
 
     ws.onerror =
     function(){
 
-        connected = false;
-
-
-        setStatus(
-            "WEBSOCKET ERROR",
-            "bad"
+        clearTimeout(
+            timeout
         );
 
 
-        addLog(
-            "Browser reported a WebSocket error.",
+        log(
+            "WebSocket error on test " +
+            number,
             "error"
         );
-
-
-        document.getElementById(
-            "testMessage"
-        ).textContent =
-            "The browser could not maintain the WebSocket connection.";
 
     };
 
 
-    /* ======================================
+    /* =====================================
        CLOSE
-    ====================================== */
+    ===================================== */
 
     ws.onclose =
     function(event){
 
-        connected = false;
-
-
-        setStatus(
-            "DISCONNECTED - CODE " +
-            event.code,
-            "bad"
+        clearTimeout(
+            timeout
         );
 
 
-        addLog(
+        log(
             "Connection closed.",
             "error"
         );
 
 
-        addLog(
+        log(
             "Close code: " +
             event.code,
             "error"
         );
 
 
-        if(event.reason){
+        /*
+           Only continue if we haven't
+           received a working tick.
+        */
 
-            addLog(
-                "Reason: " +
-                event.reason,
-                "error"
-            );
+        if(
+            document.getElementById(
+                "lastTick"
+            ).textContent ===
+            "—"
+        ){
+
+            nextTest();
 
         }
-
-
-        document.getElementById(
-            "connectButton"
-        ).disabled = false;
-
-
-        document.getElementById(
-            "testMessage"
-        ).textContent =
-            "Connection closed. See the log above.";
 
     };
 
 }
 
 
-/* ==========================================
-   HISTORY
-========================================== */
+/* =========================================
+   NEXT TEST
+========================================= */
 
-function requestHistory(
-    symbol
-){
+function nextTest(){
 
     if(
-        !ws ||
-        ws.readyState !==
-        WebSocket.OPEN
+        testNumber === 1
     ){
 
-        addLog(
-            "WebSocket is not open.",
-            "error"
+        testNumber = 2;
+
+
+        log(
+            "--------------------------------"
         );
+
+
+        log(
+            "Test 1 failed."
+        );
+
+
+        log(
+            "Trying legacy Deriv endpoint...",
+            "warning"
+        );
+
+
+        testEndpoint(
+            LEGACY_ENDPOINT,
+            2
+        );
+
 
         return;
 
     }
 
 
-    setStatus(
-        "CONNECTED - LOADING HISTORY...",
-        "yellow"
-    );
-
-
-    addLog(
-        "Requesting 250 historical ticks...",
-        "info"
-    );
-
-
     /*
-        Deriv market-data request.
-    */
-
-    ws.send(
-
-        JSON.stringify({
-
-            ticks_history:
-                symbol,
-
-            end:
-                "latest",
-
-            count:
-                250,
-
-            style:
-                "ticks",
-
-            req_id:
-                1
-
-        })
-
-    );
-
-}
-
-
-/* ==========================================
-   HISTORY RESPONSE
-========================================== */
-
-function handleHistory(
-    data,
-    symbol
-){
-
-    let prices = [];
-
-
-    if(
-        data.history &&
-        Array.isArray(
-            data.history.prices
-        )
-    ){
-
-        prices =
-            data.history.prices;
-
-    }
-
-
-    addLog(
-        "Historical ticks received: " +
-        prices.length,
-        "success"
-    );
-
-
-    /*
-        Now start the live subscription.
+       Both failed.
     */
 
     setStatus(
-        "HISTORY LOADED - STARTING LIVE",
-        "good"
+        "BOTH CONNECTIONS FAILED",
+        "red"
+    );
+
+
+    log(
+        "--------------------------------"
+    );
+
+
+    log(
+        "BOTH DERIV WEBSOCKET ENDPOINTS FAILED.",
+        "error"
+    );
+
+
+    log(
+        "This is no longer a predictor-code problem.",
+        "error"
+    );
+
+
+    log(
+        "Next we will test your iPhone/network.",
+        "warning"
     );
 
 
     document.getElementById(
-        "testMessage"
-    ).textContent =
-        "History loaded. Starting live tick stream...";
-
-
-    addLog(
-        "Subscribing to live ticks...",
-        "info"
-    );
-
-
-    ws.send(
-
-        JSON.stringify({
-
-            ticks:
-                symbol,
-
-            subscribe:
-                1,
-
-            req_id:
-                2
-
-        })
-
-    );
+        "start"
+    ).disabled =
+        false;
 
 }
-
-
-/* ==========================================
-   LIVE TICK
-========================================== */
-
-function handleTick(
-    data
-){
-
-    if(
-        !data.tick
-    ){
-
-        return;
-
-    }
-
-
-    const quote =
-        data.tick.quote;
-
-
-    liveTicks++;
-
-
-    document.getElementById(
-        "lastTick"
-    ).textContent =
-        quote;
-
-
-    document.getElementById(
-        "tickCount"
-    ).textContent =
-        liveTicks;
-
-
-    setStatus(
-        "LIVE - RECEIVING TICKS",
-        "good"
-    );
-
-
-    document.getElementById(
-        "testMessage"
-    ).textContent =
-        "Deriv is connected and sending live ticks.";
-
-
-    /*
-        Only log the first few ticks
-        so the log doesn't become huge.
-    */
-
-    if(
-        liveTicks <= 10
-    ){
-
-        addLog(
-            "LIVE TICK " +
-            liveTicks +
-            ": " +
-            quote,
-            "success"
-        );
-
-    }
-
-}
-
-
-/* ==========================================
-   SAFETY: AUTO DISCONNECT NOTICE
-========================================== */
-
-window.addEventListener(
-    "beforeunload",
-    function(){
-
-        if(ws){
-
-            try{
-                ws.close();
-            }catch(e){}
-
-        }
-
-    }
-);
 
 </script>
 
