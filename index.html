@@ -1,651 +1,182 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>Deriv Digit Predictor V5</title>
+<title>Deriv Connection Test</title>
 
 <style>
-
 body{
-    margin:0;
-    padding:16px;
-    background:#070b16;
-    color:#fff;
+    background:#080c18;
+    color:white;
     font-family:Arial,sans-serif;
+    padding:20px;
 }
-
-.container{
-    max-width:1000px;
+.box{
+    max-width:700px;
     margin:auto;
-}
-
-h1{
-    text-align:center;
-    margin-bottom:5px;
-}
-
-.subtitle{
-    text-align:center;
-    color:#9ca8c4;
-    margin-bottom:18px;
-}
-
-.card{
     background:#141b30;
-    border-radius:16px;
-    padding:18px;
-    margin-bottom:15px;
+    padding:20px;
+    border-radius:15px;
 }
-
-select,
-button{
+button,select{
     width:100%;
-    padding:13px;
-    margin-top:8px;
-    border:none;
-    border-radius:9px;
+    padding:14px;
+    margin:8px 0;
+    border:0;
+    border-radius:8px;
     font-size:16px;
 }
-
 button{
     background:#ff3b7f;
     color:white;
     font-weight:bold;
-    cursor:pointer;
 }
-
 .status{
-    display:inline-block;
-    background:#35405e;
-    padding:8px 12px;
-    border-radius:20px;
+    padding:15px;
+    border-radius:8px;
+    background:#222b45;
+    margin:15px 0;
 }
-
 .tick{
-    color:#9ca8c4;
-    margin-left:10px;
-}
-
-.prediction{
-    text-align:center;
-}
-
-.title{
-    color:#9ca8c4;
-}
-
-.big{
-    font-size:90px;
-    font-weight:bold;
-    margin:5px;
-}
-
-.strength{
-    font-size:28px;
-    font-weight:bold;
-}
-
-.signal{
-    font-size:20px;
-    font-weight:bold;
-    margin-top:8px;
-}
-
-.green{
-    color:#55e6a5;
-}
-
-.yellow{
-    color:#ffd166;
-}
-
-.red{
-    color:#ff7f8a;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:
-    repeat(auto-fit,minmax(130px,1fr));
-    gap:10px;
-}
-
-.stat{
-    background:#0c1325;
-    padding:14px;
-    border-radius:10px;
-}
-
-.name{
-    color:#8995ad;
-    font-size:12px;
-}
-
-.value{
-    font-size:23px;
-    font-weight:bold;
-    margin-top:5px;
-}
-
-.result{
-    text-align:center;
     font-size:30px;
     font-weight:bold;
-    padding:15px;
-    background:#0c1325;
-    border-radius:12px;
+    text-align:center;
+    margin:20px 0;
 }
-
-.history{
-    max-height:350px;
-    overflow:auto;
-}
-
-.row{
-    display:grid;
-    grid-template-columns:
-    50px 80px 80px 1fr;
-    gap:8px;
-    align-items:center;
-    background:#0c1325;
-    padding:10px;
-    margin-bottom:6px;
+.log{
+    background:#080c18;
+    padding:12px;
     border-radius:8px;
-}
-
-.win{
-    color:#55e6a5;
-    font-weight:bold;
-}
-
-.loss{
-    color:#ff7f8a;
-    font-weight:bold;
-}
-
-.info{
-    color:#9ca8c4;
-    line-height:1.6;
-    font-size:14px;
-}
-
-.warning{
-    color:#8995ad;
+    height:250px;
+    overflow:auto;
     font-size:13px;
     line-height:1.6;
 }
-
-.bar{
-    height:8px;
-    background:#35405e;
-    border-radius:5px;
-    margin-top:8px;
+.good{
+    color:#55e6a5;
 }
-
-.fill{
-    height:100%;
-    background:#ff3b7f;
-    border-radius:5px;
+.bad{
+    color:#ff7f8a;
 }
-
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 
-<h1>🎯 Deriv Digit Predictor V5</h1>
-
-<div class="subtitle">
-Live analysis + paper prediction testing
-</div>
-
-
-<!-- SETTINGS -->
-
-<div class="card">
-
-<label>Market</label>
+<h1>🔌 Deriv Connection Test</h1>
 
 <select id="symbol">
-
-<option value="1HZ10V">
-Volatility 10 Index
-</option>
-
-<option value="1HZ25V">
-Volatility 25 Index
-</option>
-
-<option value="1HZ50V">
-Volatility 50 Index
-</option>
-
-<option value="1HZ75V">
-Volatility 75 Index
-</option>
-
-<option value="1HZ100V">
-Volatility 100 Index
-</option>
-
+<option value="1HZ10V">Volatility 10 Index</option>
+<option value="1HZ25V">Volatility 25 Index</option>
+<option value="1HZ50V">Volatility 50 Index</option>
+<option value="1HZ75V">Volatility 75 Index</option>
+<option value="1HZ100V">Volatility 100 Index</option>
 </select>
 
-
-<label>Historical Sample</label>
-
-<select id="sample">
-
-<option value="250">
-250 ticks
-</option>
-
-<option value="500">
-500 ticks
-</option>
-
-<option value="1000">
-1000 ticks
-</option>
-
-</select>
-
-
-<button onclick="startAnalyzer()">
-🚀 START PAPER TEST
+<button onclick="connectDeriv()">
+CONNECT TO DERIV
 </button>
 
+<div id="status" class="status">
+Status: NOT CONNECTED
 </div>
 
-
-<!-- CONNECTION -->
-
-<div class="card">
-
-<span id="status"
-class="status">
-Disconnected
-</span>
-
-<span id="tickCount"
-class="tick">
-0 ticks
-</span>
-
+<div class="tick">
+Last tick: <span id="tick">—</span>
 </div>
 
-
-<!-- CURRENT PREDICTION -->
-
-<div class="card prediction">
-
-<div class="title">
-🎯 CURRENT MATCH PREDICTION
+<div>
+Ticks received:
+<strong id="count">0</strong>
 </div>
 
-<div id="prediction"
-class="big">
-—
-</div>
+<h3>Connection Log</h3>
 
-<div id="strength"
-class="strength">
-Strength: —
-</div>
-
-<div id="signal"
-class="signal">
-Waiting for data...
-</div>
-
-<p id="predictionInfo"
-class="info">
-The model will make a prediction after enough
-historical ticks have been loaded.
-</p>
-
-</div>
-
-
-<!-- NEXT TICK TEST -->
-
-<div class="card">
-
-<h2>🧪 Next Tick Test</h2>
-
-<div id="testResult"
-class="result">
-WAITING
-</div>
-
-<p id="testInfo"
-class="info">
-A prediction will be made first.
-The next live tick will then be used to test it.
-</p>
-
-</div>
-
-
-<!-- PERFORMANCE -->
-
-<div class="card">
-
-<h2>📊 Paper Test Performance</h2>
-
-<div class="stats">
-
-<div class="stat">
-<div class="name">
-PREDICTIONS
-</div>
-
-<div id="total"
-class="value">
-0
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-MATCHES
-</div>
-
-<div id="wins"
-class="value">
-0
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-MISSES
-</div>
-
-<div id="losses"
-class="value">
-0
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-ACCURACY
-</div>
-
-<div id="accuracy"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-WIN STREAK
-</div>
-
-<div id="winStreak"
-class="value">
-0
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-BEST STREAK
-</div>
-
-<div id="bestStreak"
-class="value">
-0
-</div>
-</div>
-
-</div>
-
-</div>
-
-
-<!-- MARKET STATS -->
-
-<div class="card">
-
-<h2>📈 Current Market Statistics</h2>
-
-<div class="stats">
-
-<div class="stat">
-<div class="name">
-HOT DIGIT
-</div>
-
-<div id="hot"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-COLD DIGIT
-</div>
-
-<div id="cold"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-LAST DIGIT
-</div>
-
-<div id="last"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-EVEN
-</div>
-
-<div id="even"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-ODD
-</div>
-
-<div id="odd"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-OVER 5
-</div>
-
-<div id="over"
-class="value">
-—
-</div>
-</div>
-
-
-<div class="stat">
-<div class="name">
-UNDER 5
-</div>
-
-<div id="under"
-class="value">
-—
-</div>
-</div>
-
-</div>
-
-</div>
-
-
-<!-- WINDOW ANALYSIS -->
-
-<div class="card">
-
-<h2>🔎 Multi-Window Analysis</h2>
-
-<div id="windows"
-class="info">
-Waiting for data...
-</div>
-
-</div>
-
-
-<!-- TEST HISTORY -->
-
-<div class="card">
-
-<h2>📋 Prediction History</h2>
-
-<div id="history"
-class="history">
-No predictions tested yet.
-</div>
-
-</div>
-
-
-<!-- WARNING -->
-
-<div class="card">
-
-<p class="warning">
-
-⚠️ PAPER TESTING ONLY
-
-This version does NOT place trades.
-
-The strength score is a model score based on
-historical patterns and window agreement. It is
-NOT the probability that the next digit will match.
-
-The performance section measures what actually
-happened after each prediction.
-
-Do not connect automatic trading until the strategy
-has been independently tested over a sufficiently
-large sample.
-
-</p>
-
-</div>
+<div id="log" class="log"></div>
 
 </div>
 
 
 <script>
 
-/* =========================================
-GLOBAL VARIABLES
-========================================= */
-
-let websocket = null;
-
-let digits = [];
-
-let sampleSize = 250;
-
-let pendingPrediction = null;
-
-let predictionNumber = 0;
-
-let wins = 0;
-
-let losses = 0;
-
-let currentStreak = 0;
-
-let bestStreak = 0;
-
-let history = [];
+let ws = null;
+let tickCount = 0;
 
 
-/* =========================================
-START
-========================================= */
+/* ================================
+   LOG
+================================ */
 
-function startAnalyzer(){
+function log(message){
 
-    if(websocket){
+    const box =
+        document.getElementById("log");
+
+    const time =
+        new Date().toLocaleTimeString();
+
+    box.innerHTML +=
+        "[" + time + "] " +
+        message +
+        "<br>";
+
+    box.scrollTop =
+        box.scrollHeight;
+
+}
+
+
+/* ================================
+   STATUS
+================================ */
+
+function status(message, good=false){
+
+    const element =
+        document.getElementById("status");
+
+    element.innerText =
+        "Status: " + message;
+
+    element.className =
+        good
+        ? "status good"
+        : "status";
+
+}
+
+
+/* ================================
+   CONNECT
+================================ */
+
+function connectDeriv(){
+
+    if(ws){
 
         try{
-            websocket.close();
+            ws.close();
         }catch(e){}
 
     }
 
 
-    digits = [];
-
-    pendingPrediction = null;
-
-    predictionNumber = 0;
-
-    wins = 0;
-
-    losses = 0;
-
-    currentStreak = 0;
-
-    bestStreak = 0;
-
-    history = [];
-
-
-    updatePerformance();
-
+    tickCount = 0;
 
     document.getElementById(
-        "history"
-    ).innerHTML =
-        "No predictions tested yet.";
-
+        "count"
+    ).innerText = "0";
 
     document.getElementById(
-        "testResult"
-    ).innerText =
-        "WAITING";
+        "tick"
+    ).innerText = "—";
 
-
-    sampleSize =
-        Number(
-            document.getElementById(
-                "sample"
-            ).value
-        );
+    document.getElementById(
+        "log"
+    ).innerHTML = "";
 
 
     const symbol =
@@ -654,50 +185,78 @@ function startAnalyzer(){
         ).value;
 
 
-    updateStatus(
-        "Connecting..."
+    status(
+        "CONNECTING..."
+    );
+
+    log(
+        "Opening WebSocket..."
     );
 
 
-    websocket =
+    /*
+       Deriv public market-data
+       WebSocket.
+    */
+
+    ws =
         new WebSocket(
             "wss://ws.binaryws.com/websockets/v3"
         );
 
 
-    websocket.onopen =
+    /* ================================
+       OPEN
+    ================================ */
+
+    ws.onopen =
     function(){
 
-        updateStatus(
-            "Connected - loading data..."
+        status(
+            "CONNECTED",
+            true
+        );
+
+        log(
+            "WebSocket connection established."
         );
 
 
-        websocket.send(
-            JSON.stringify({
+        /*
+           First request historical ticks.
+        */
 
-                ticks_history:symbol,
-
-                end:"latest",
-
-                count:sampleSize,
-
-                style:"ticks",
-
-                req_id:1
-
-            })
+        status(
+            "LOADING HISTORY...",
+            true
         );
 
 
-        websocket.send(
+        log(
+            "Requesting 250 historical ticks..."
+        );
+
+
+        ws.send(
             JSON.stringify({
 
-                ticks:symbol,
+                ticks_history:
+                    symbol,
 
-                subscribe:1,
+                end:
+                    "latest",
 
-                req_id:2
+                count:
+                    250,
+
+                style:
+                    "ticks",
+
+                subscribe:
+                    0,
+
+                req_id:
+                    1
 
             })
         );
@@ -705,7 +264,11 @@ function startAnalyzer(){
     };
 
 
-    websocket.onmessage =
+    /* ================================
+       MESSAGE
+    ================================ */
+
+    ws.onmessage =
     function(event){
 
         let data;
@@ -718,17 +281,29 @@ function startAnalyzer(){
                     event.data
                 );
 
-        }catch(e){
+        }catch(error){
+
+            log(
+                "Could not read server response."
+            );
 
             return;
 
         }
 
 
+        /*
+           API ERROR
+        */
+
         if(data.error){
 
-            updateStatus(
-                "API Error: " +
+            status(
+                "API ERROR"
+            );
+
+            log(
+                "ERROR: " +
                 data.error.message
             );
 
@@ -737,47 +312,80 @@ function startAnalyzer(){
         }
 
 
-        /* HISTORY */
+        /*
+           HISTORY RECEIVED
+        */
 
         if(
-            data.msg_type === "history" &&
-            data.history
+            data.msg_type ===
+            "history"
         ){
 
             const prices =
-                data.history.prices || [];
+                data.history &&
+                data.history.prices
+                ?
+                data.history.prices
+                :
+                [];
 
 
-            digits =
-                prices.map(
-                    function(price){
-
-                        return getLastDigit(
-                            price
-                        );
-
-                    }
-                );
+            log(
+                "History received: " +
+                prices.length +
+                " ticks."
+            );
 
 
             if(
-                digits.length >
-                sampleSize
+                prices.length === 0
             ){
 
-                digits =
-                    digits.slice(
-                        -sampleSize
-                    );
+                log(
+                    "No historical prices returned."
+                );
+
+                return;
 
             }
 
 
-            analyze();
+            status(
+                "HISTORY LOADED - STARTING LIVE STREAM",
+                true
+            );
 
 
-            updateStatus(
-                "LIVE - paper testing"
+            /*
+               Now subscribe to live ticks.
+               We deliberately wait until
+               history has arrived.
+            */
+
+            log(
+                "Subscribing to live ticks..."
+            );
+
+
+            const symbol =
+                document.getElementById(
+                    "symbol"
+                ).value;
+
+
+            ws.send(
+                JSON.stringify({
+
+                    ticks:
+                        symbol,
+
+                    subscribe:
+                        1,
+
+                    req_id:
+                        2
+
+                })
             );
 
 
@@ -786,1124 +394,18 @@ function startAnalyzer(){
         }
 
 
-        /* LIVE TICK */
+        /*
+           LIVE TICK
+        */
 
         if(
-            data.msg_type === "tick" &&
-            data.tick
+            data.msg_type ===
+            "tick"
         ){
-
-            const actualDigit =
-                getLastDigit(
-                    data.tick.quote
-                );
-
-
-            /*
-            First test the OLD prediction
-            against this new tick.
-            */
 
             if(
-                pendingPrediction !== null
-            ){
-
-                evaluatePrediction(
-                    actualDigit
-                );
-
-            }
-
-
-            /*
-            Add new tick to dataset.
-            */
-
-            digits.push(
-                actualDigit
-            );
-
-
-            if(
-                digits.length >
-                sampleSize
-            ){
-
-                digits.shift();
-
-            }
-
-
-            analyze();
-
-
-            /*
-            Make a NEW prediction for
-            the NEXT tick.
-            */
-
-            if(
-                digits.length >= 50
-            ){
-
-                makePrediction();
-
-            }
-
-
-            updateStatus(
-                "LIVE - paper testing"
-            );
-
-        }
-
-    };
-
-
-    websocket.onerror =
-    function(){
-
-        updateStatus(
-            "WebSocket error"
-        );
-
-    };
-
-
-    websocket.onclose =
-    function(event){
-
-        updateStatus(
-            "Disconnected - code " +
-            event.code
-        );
-
-    };
-
-}
-
-
-/* =========================================
-LAST DIGIT
-========================================= */
-
-function getLastDigit(price){
-
-    const text =
-        String(price);
-
-
-    if(
-        text.includes(".")
-    ){
-
-        const parts =
-            text.split(".");
-
-
-        const decimal =
-            parts[1];
-
-
-        if(
-            decimal &&
-            decimal.length
-        ){
-
-            return Number(
-                decimal[
-                    decimal.length-1
-                ]
-            );
-
-        }
-
-    }
-
-
-    const clean =
-        text.replace(
-            /\D/g,
-            ""
-        );
-
-
-    if(!clean){
-
-        return 0;
-
-    }
-
-
-    return Number(
-        clean[
-            clean.length-1
-        ]
-    );
-
-}
-
-
-/* =========================================
-STATUS
-========================================= */
-
-function updateStatus(message){
-
-    document.getElementById(
-        "status"
-    ).innerText =
-        message;
-
-}
-
-
-/* =========================================
-COUNT DIGITS
-========================================= */
-
-function countDigits(data){
-
-    const counts =
-        new Array(10).fill(0);
-
-
-    data.forEach(
-        function(d){
-
-            counts[d]++;
-
-        }
-    );
-
-
-    return counts;
-
-}
-
-
-/* =========================================
-HIGHEST
-========================================= */
-
-function highest(counts){
-
-    let best = 0;
-
-
-    for(
-        let i=1;
-        i<10;
-        i++
-    ){
-
-        if(
-            counts[i] >
-            counts[best]
-        ){
-
-            best=i;
-
-        }
-
-    }
-
-
-    return best;
-
-}
-
-
-/* =========================================
-PERCENT
-========================================= */
-
-function pct(
-    value,
-    total
-){
-
-    if(!total){
-
-        return 0;
-
-    }
-
-
-    return (
-        value /
-        total *
-        100
-    );
-
-}
-
-
-/* =========================================
-GENERAL ANALYSIS
-========================================= */
-
-function analyze(){
-
-    if(
-        digits.length < 20
-    ){
-
-        return;
-
-    }
-
-
-    const counts =
-        countDigits(
-            digits
-        );
-
-
-    const hot =
-        highest(
-            counts
-        );
-
-
-    let cold = 0;
-
-
-    for(
-        let i=1;
-        i<10;
-        i++
-    ){
-
-        if(
-            counts[i] <
-            counts[cold]
-        ){
-
-            cold=i;
-
-        }
-
-    }
-
-
-    const even =
-        digits.filter(
-            d =>
-            d % 2 === 0
-        ).length;
-
-
-    const odd =
-        digits.length -
-        even;
-
-
-    const over =
-        digits.filter(
-            d =>
-            d > 5
-        ).length;
-
-
-    const under =
-        digits.filter(
-            d =>
-            d < 5
-        ).length;
-
-
-    document.getElementById(
-        "hot"
-    ).innerText =
-        hot +
-        " (" +
-        counts[hot] +
-        ")";
-
-
-    document.getElementById(
-        "cold"
-    ).innerText =
-        cold +
-        " (" +
-        counts[cold] +
-        ")";
-
-
-    document.getElementById(
-        "last"
-    ).innerText =
-        digits[
-            digits.length-1
-        ];
-
-
-    document.getElementById(
-        "even"
-    ).innerText =
-        pct(
-            even,
-            digits.length
-        ).toFixed(1) +
-        "%";
-
-
-    document.getElementById(
-        "odd"
-    ).innerText =
-        pct(
-            odd,
-            digits.length
-        ).toFixed(1) +
-        "%";
-
-
-    document.getElementById(
-        "over"
-    ).innerText =
-        pct(
-            over,
-            digits.length
-        ).toFixed(1) +
-        "%";
-
-
-    document.getElementById(
-        "under"
-    ).innerText =
-        pct(
-            under,
-            digits.length
-        ).toFixed(1) +
-        "%";
-
-
-    document.getElementById(
-        "tickCount"
-    ).innerText =
-        digits.length +
-        " ticks";
-
-
-    displayWindows();
-
-}
-
-
-/* =========================================
-PREDICTION ENGINE
-========================================= */
-
-function makePrediction(){
-
-    const windows =
-        [
-            10,
-            25,
-            50,
-            100,
-            250
-        ].filter(
-            size =>
-            digits.length >= size
-        );
-
-
-    const scores =
-        new Array(10).fill(0);
-
-
-    const agreement =
-        new Array(10).fill(0);
-
-
-    windows.forEach(
-        function(size){
-
-            const data =
-                digits.slice(
-                    -size
-                );
-
-
-            const counts =
-                countDigits(
-                    data
-                );
-
-
-            const winner =
-                highest(
-                    counts
-                );
-
-
-            agreement[
-                winner
-            ]++;
-
-
-            let weight = 1;
-
-
-            if(size === 10)
-                weight = 5;
-
-            else if(size === 25)
-                weight = 4;
-
-            else if(size === 50)
-                weight = 3;
-
-            else if(size === 100)
-                weight = 2;
-
-
-            for(
-                let d=0;
-                d<10;
-                d++
-            ){
-
-                const frequency =
-                    pct(
-                        counts[d],
-                        size
-                    );
-
-
-                if(
-                    frequency > 10
-                ){
-
-                    scores[d] +=
-                        (
-                            frequency -
-                            10
-                        ) *
-                        weight;
-
-                }
-
-            }
-
-        }
-    );
-
-
-    /*
-    Agreement bonus
-    */
-
-    for(
-        let d=0;
-        d<10;
-        d++
-    ){
-
-        scores[d] +=
-            agreement[d] *
-            7;
-
-    }
-
-
-    /*
-    Recent 25 ticks
-    */
-
-    const recent =
-        digits.slice(
-            -25
-        );
-
-
-    const recentCounts =
-        countDigits(
-            recent
-        );
-
-
-    for(
-        let d=0;
-        d<10;
-        d++
-    ){
-
-        const frequency =
-            pct(
-                recentCounts[d],
-                recent.length
-            );
-
-
-        if(
-            frequency > 10
-        ){
-
-            scores[d] +=
-                (
-                    frequency -
-                    10
-                ) *
-                2;
-
-        }
-
-    }
-
-
-    /*
-    Ranking
-    */
-
-    const ranking =
-        scores.map(
-            function(score,digit){
-
-                return {
-
-                    digit:digit,
-
-                    score:score,
-
-                    agreement:
-                        agreement[digit]
-
-                };
-
-            }
-        ).sort(
-            function(a,b){
-
-                return (
-                    b.score -
-                    a.score
-                );
-
-            }
-        );
-
-
-    const best =
-        ranking[0];
-
-
-    const second =
-        ranking[1];
-
-
-    const separation =
-        Math.max(
-            0,
-            best.score -
-            second.score
-        );
-
-
-    const historicalFrequency =
-        pct(
-            countDigits(
-                digits
-            )[best.digit],
-            digits.length
-        );
-
-
-    const recentFrequency =
-        pct(
-            recentCounts[
-                best.digit
-            ],
-            recent.length
-        );
-
-
-    /*
-    Model strength.
-
-    This is intentionally not presented
-    as a win probability.
-    */
-
-    let strength = 25;
-
-
-    strength +=
-        best.agreement *
-        8;
-
-
-    strength +=
-        Math.min(
-            separation * 2,
-            20
-        );
-
-
-    if(
-        recentFrequency > 10
-    ){
-
-        strength +=
-            Math.min(
-                (
-                    recentFrequency -
-                    10
-                ) *
-                1.5,
-                12
-            );
-
-    }
-
-
-    if(
-        best.agreement <= 1
-    ){
-
-        strength -= 10;
-
-    }
-
-
-    strength =
-        Math.max(
-            5,
-            Math.min(
-                95,
-                strength
-            )
-        );
-
-
-    /*
-    Store prediction.
-
-    IMPORTANT:
-    This prediction is evaluated
-    against the NEXT live tick.
-    */
-
-    pendingPrediction =
-        best.digit;
-
-
-    predictionNumber++;
-
-
-    /*
-    Display.
-    */
-
-    document.getElementById(
-        "prediction"
-    ).innerText =
-        best.digit;
-
-
-    document.getElementById(
-        "strength"
-    ).innerText =
-        "Strength: " +
-        strength.toFixed(1) +
-        "%";
-
-
-    let signal =
-        "🔴 WEAK";
-
-
-    let className =
-        "red";
-
-
-    if(
-        strength >= 75 &&
-        best.agreement >= 3
-    ){
-
-        signal =
-            "🟢 STRONG";
-
-
-        className =
-            "green";
-
-    }
-
-    else if(
-        strength >= 60
-    ){
-
-        signal =
-            "🟡 WATCH";
-
-
-        className =
-            "yellow";
-
-    }
-
-
-    const signalElement =
-        document.getElementById(
-            "signal"
-        );
-
-
-    signalElement.innerText =
-        signal;
-
-
-    signalElement.className =
-        "signal " +
-        className;
-
-
-    document.getElementById(
-        "predictionInfo"
-    ).innerHTML =
-
-        "Digit <strong>" +
-        best.digit +
-        "</strong> selected from the current " +
-        "multi-window model.<br><br>" +
-
-        "Historical frequency: " +
-        historicalFrequency.toFixed(1) +
-        "%<br>" +
-
-        "Recent 25-tick frequency: " +
-        recentFrequency.toFixed(1) +
-        "%<br>" +
-
-        "Window agreement: " +
-        best.agreement +
-        "/" +
-        windows.length +
-        "<br><br>" +
-
-        "⏳ Waiting for the next tick to test it.";
-
-}
-
-
-/* =========================================
-EVALUATE PREDICTION
-========================================= */
-
-function evaluatePrediction(
-    actualDigit
-){
-
-    if(
-        pendingPrediction === null
-    ){
-
-        return;
-
-    }
-
-
-    const predicted =
-        pendingPrediction;
-
-
-    const won =
-        predicted ===
-        actualDigit;
-
-
-    if(won){
-
-        wins++;
-
-        currentStreak++;
-
-        if(
-            currentStreak >
-            bestStreak
-        ){
-
-            bestStreak =
-                currentStreak;
-
-        }
-
-    }
-
-    else{
-
-        losses++;
-
-        currentStreak =
-            0;
-
-    }
-
-
-    history.unshift({
-
-        number:
-            predictionNumber,
-
-        predicted:
-            predicted,
-
-        actual:
-            actualDigit,
-
-        result:
-            won ?
-            "MATCH" :
-            "MISS",
-
-        time:
-            new Date().toLocaleTimeString()
-
-    });
-
-
-    /*
-    Keep last 50 results.
-    */
-
-    if(
-        history.length > 50
-    ){
-
-        history.pop();
-
-    }
-
-
-    pendingPrediction =
-        null;
-
-
-    /*
-    Display result.
-    */
-
-    const resultElement =
-        document.getElementById(
-            "testResult"
-        );
-
-
-    if(won){
-
-        resultElement.innerText =
-            "✅ MATCH";
-
-
-        resultElement.className =
-            "result green";
-
-
-        document.getElementById(
-            "testInfo"
-        ).innerText =
-            "Predicted " +
-            predicted +
-            " and the next digit was " +
-            actualDigit +
-            ".";
-
-    }
-
-    else{
-
-        resultElement.innerText =
-            "❌ MISS";
-
-
-        resultElement.className =
-            "result red";
-
-
-        document.getElementById(
-            "testInfo"
-        ).innerText =
-            "Predicted " +
-            predicted +
-            " but the next digit was " +
-            actualDigit +
-            ".";
-
-    }
-
-
-    updatePerformance();
-
-    displayHistory();
-
-}
-
-
-/* =========================================
-PERFORMANCE
-========================================= */
-
-function updatePerformance(){
-
-    const total =
-        wins +
-        losses;
-
-
-    document.getElementById(
-        "total"
-    ).innerText =
-        total;
-
-
-    document.getElementById(
-        "wins"
-    ).innerText =
-        wins;
-
-
-    document.getElementById(
-        "losses"
-    ).innerText =
-        losses;
-
-
-    document.getElementById(
-        "accuracy"
-    ).innerText =
-        total === 0
-        ?
-        "—"
-        :
-        (
-            wins /
-            total *
-            100
-        ).toFixed(1) +
-        "%";
-
-
-    document.getElementById(
-        "winStreak"
-    ).innerText =
-        currentStreak;
-
-
-    document.getElementById(
-        "bestStreak"
-    ).innerText =
-        bestStreak;
-
-}
-
-
-/* =========================================
-HISTORY
-========================================= */
-
-function displayHistory(){
-
-    const container =
-        document.getElementById(
-            "history"
-        );
-
-
-    if(
-        history.length === 0
-    ){
-
-        container.innerHTML =
-            "No predictions tested yet.";
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        "";
-
-
-    history.forEach(
-        function(item){
-
-            const className =
-                item.result ===
-                "MATCH"
-                ?
-                "win"
-                :
-                "loss";
-
-
-            container.innerHTML += `
-
-            <div class="row">
-
-                <div>
-                    #${item.number}
-                </div>
-
-                <div>
-                    P: <strong>
-                    ${item.predicted}
-                    </strong>
-                </div>
-
-                <div>
-                    A: <strong>
-                    ${item.actual}
-                    </strong>
-                </div>
-
-                <div class="${className}">
-                    ${item.result}
-                    — ${item.time}
-                </div>
-
-            </div>
-
-            `;
-
-        }
-    );
-
-}
-
-
-/* =========================================
-WINDOW DISPLAY
-========================================= */
-
-function displayWindows(){
-
-    const container =
-        document.getElementById(
-            "windows"
-        );
-
-
-    container.innerHTML =
-        "";
-
-
-    [
-        10,
-        25,
-        50,
-        100,
-        250
-    ].forEach(
-        function(size){
-
-            if(
-                digits.length <
-                size
+                !data.tick ||
+                data.tick.quote === undefined
             ){
 
                 return;
@@ -1911,62 +413,103 @@ function displayWindows(){
             }
 
 
-            const data =
-                digits.slice(
-                    -size
+            const quote =
+                data.tick.quote;
+
+
+            tickCount++;
+
+
+            document.getElementById(
+                "tick"
+            ).innerText =
+                quote;
+
+
+            document.getElementById(
+                "count"
+            ).innerText =
+                tickCount;
+
+
+            status(
+                "LIVE - RECEIVING TICKS",
+                true
+            );
+
+
+            if(
+                tickCount <= 5
+            ){
+
+                log(
+                    "LIVE TICK " +
+                    tickCount +
+                    ": " +
+                    quote
                 );
 
-
-            const counts =
-                countDigits(
-                    data
-                );
-
-
-            const winner =
-                highest(
-                    counts
-                );
-
-
-            const frequency =
-                pct(
-                    counts[winner],
-                    size
-                );
-
-
-            container.innerHTML += `
-
-            <div style="
-                background:#0c1325;
-                padding:11px;
-                margin-bottom:7px;
-                border-radius:8px;
-            ">
-
-                Last
-                <strong>
-                    ${size}
-                </strong>
-                ticks →
-
-                Digit
-                <strong>
-                    ${winner}
-                </strong>
-
-                |
-
-                Frequency:
-                ${frequency.toFixed(1)}%
-
-            </div>
-
-            `;
+            }
 
         }
-    );
+
+    };
+
+
+    /* ================================
+       ERROR
+    ================================ */
+
+    ws.onerror =
+    function(error){
+
+        status(
+            "WEBSOCKET ERROR"
+        );
+
+        log(
+            "WebSocket error occurred."
+        );
+
+    };
+
+
+    /* ================================
+       CLOSE
+    ================================ */
+
+    ws.onclose =
+    function(event){
+
+        status(
+            "DISCONNECTED - CODE " +
+            event.code
+        );
+
+
+        log(
+            "Connection closed."
+        );
+
+
+        log(
+            "Close code: " +
+            event.code
+        );
+
+
+        if(
+            event.reason
+        ){
+
+            log(
+                "Reason: " +
+                event.reason
+            );
+
+        }
+
+    };
 
 }
 
