@@ -2,137 +2,299 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<title>Deriv WebSocket Diagnostic</title>
+<title>Deriv Digit Predictor</title>
 
 <style>
 
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
-    padding:20px;
+    padding:16px;
     background:#070b16;
-    color:white;
+    color:#fff;
     font-family:Arial,sans-serif;
 }
 
-.container{
-    max-width:700px;
+.wrap{
+    max-width:1000px;
     margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin:8px 0;
+}
+
+.sub{
+    text-align:center;
+    color:#9ca8c4;
+    margin-bottom:18px;
 }
 
 .card{
     background:#141b30;
-    padding:20px;
     border-radius:16px;
-    margin-bottom:16px;
+    padding:18px;
+    margin-bottom:14px;
 }
 
-h1{
-    font-size:30px;
+label{
+    display:block;
+    color:#aeb9d0;
+    margin:10px 0 6px;
+}
+
+select,
+button{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:9px;
+    font-size:16px;
+}
+
+select{
+    background:#eee;
+    color:#111;
+}
+
+button{
+    background:#ff3b7f;
+    color:#fff;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+button.stop{
+    background:#7d2b3e;
+}
+
+.row{
+    display:grid;
+    grid-template-columns:
+    repeat(auto-fit,minmax(130px,1fr));
+    gap:10px;
+}
+
+.stat{
+    background:#0c1325;
+    padding:12px;
+    border-radius:10px;
+}
+
+.small{
+    color:#8995ad;
+    font-size:12px;
+}
+
+.value{
+    font-size:23px;
+    font-weight:bold;
+    margin-top:5px;
 }
 
 .status{
-    padding:16px;
+    padding:12px;
     border-radius:10px;
     background:#29324c;
     font-weight:bold;
-    margin:15px 0;
 }
 
-.green{
+.good{
     background:#123b2d;
     color:#55e6a5;
 }
 
-.red{
+.bad{
     background:#421d27;
     color:#ff8995;
 }
 
-.yellow{
+.warn{
     background:#443914;
     color:#ffd166;
 }
 
-button{
-    width:100%;
-    padding:16px;
-    border:0;
-    border-radius:10px;
-    background:#ff3b7f;
-    color:white;
-    font-size:17px;
+.pred{
+    text-align:center;
+}
+
+.prednum{
+    font-size:86px;
+    font-weight:bold;
+    margin:5px;
+}
+
+.strength{
+    font-size:26px;
     font-weight:bold;
 }
 
-.log{
-    background:#050811;
-    padding:15px;
-    border-radius:10px;
-    min-height:280px;
-    max-height:450px;
-    overflow:auto;
-    font-family:monospace;
-    font-size:13px;
-    line-height:1.7;
+.signal{
+    font-size:18px;
+    font-weight:bold;
+    margin-top:8px;
 }
 
-.line{
-    border-bottom:1px solid #182139;
-    padding:4px 0;
-}
-
-.success{
+.green{
     color:#55e6a5;
 }
 
-.error{
+.yellow{
+    color:#ffd166;
+}
+
+.red{
     color:#ff8995;
 }
 
-.warning{
-    color:#ffd166;
+.result{
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+    background:#0c1325;
+    border-radius:10px;
+    padding:15px;
+}
+
+.history{
+    max-height:330px;
+    overflow:auto;
+}
+
+.hrow{
+    display:grid;
+    grid-template-columns:
+    45px 70px 70px 1fr;
+    gap:7px;
+    background:#0c1325;
+    padding:9px;
+    margin-bottom:5px;
+    border-radius:8px;
 }
 
 .info{
     color:#9ca8c4;
+    line-height:1.55;
+    font-size:14px;
 }
 
-.tick{
-    text-align:center;
-    font-size:34px;
-    font-weight:bold;
-    padding:20px;
+.bar{
+    height:8px;
+    background:#2a3550;
+    border-radius:5px;
+    margin-top:8px;
+}
+
+.fill{
+    height:100%;
+    background:#ff3b7f;
+    border-radius:5px;
+}
+
+.muted{
+    color:#8995ad;
+}
+
+.footer{
+    font-size:12px;
+    color:#8995ad;
+    line-height:1.6;
 }
 
 </style>
 </head>
 
-
 <body>
 
-<div class="container">
+<div class="wrap">
+
+<h1>🎯 Deriv Digit Predictor</h1>
+
+<div class="sub">
+Live analysis + paper testing
+</div>
+
+
+<!-- CONTROL -->
 
 <div class="card">
 
-<h1>🔌 Deriv WebSocket Diagnostic</h1>
+<label>Market</label>
 
-<p class="info">
-This test checks both Deriv public WebSocket
-endpoints automatically.
-</p>
+<select id="symbol">
+
+<option value="1HZ10V">
+Volatility 10 Index
+</option>
+
+<option value="1HZ25V">
+Volatility 25 Index
+</option>
+
+<option value="1HZ50V">
+Volatility 50 Index
+</option>
+
+<option value="1HZ75V">
+Volatility 75 Index
+</option>
+
+<option value="1HZ100V">
+Volatility 100 Index
+</option>
+
+</select>
+
+
+<label>Analysis window</label>
+
+<select id="window">
+
+<option value="250">
+250 ticks
+</option>
+
+<option value="500">
+500 ticks
+</option>
+
+<option value="1000">
+1000 ticks
+</option>
+
+</select>
+
+
+<button onclick="startBot()">
+🚀 START ANALYZER
+</button>
+
 
 <button
-id="start"
-onclick="startDiagnostic()">
+class="stop"
+onclick="stopBot()">
 
-START CONNECTION TEST
+⏹ STOP
+
+</button>
+
+
+<button onclick="resetStats()">
+
+♻️ RESET PAPER RESULTS
 
 </button>
 
 </div>
 
+
+<!-- CONNECTION -->
 
 <div class="card">
 
@@ -144,54 +306,403 @@ Status: READY
 
 </div>
 
-<div class="tick">
+<div
+class="info"
+style="margin-top:8px">
 
-Last tick:
-<span id="lastTick">—</span>
+Market:
+<strong id="marketName">
+Volatility 10 Index
+</strong>
+
+·
+
+Live ticks:
+<strong id="ticks">
+0
+</strong>
 
 </div>
 
 </div>
 
 
-<div class="card">
+<!-- PREDICTION -->
 
-<h2>📡 Diagnostic Log</h2>
+<div class="card pred">
+
+<div class="muted">
+
+🎯 MATCH DIGIT PREDICTION
+
+</div>
+
 
 <div
-id="log"
-class="log">
+id="prediction"
+class="prednum">
 
-<div class="line info">
-Ready.
+—
+
+</div>
+
+
+<div
+id="strength"
+class="strength">
+
+Strength: —
+
+</div>
+
+
+<div
+id="signal"
+class="signal muted">
+
+Waiting for data...
+
+</div>
+
+
+<div
+id="predInfo"
+class="info"
+style="margin-top:12px">
+
+Need at least 50 live digits before making
+a prediction.
+
 </div>
 
 </div>
 
-</div>
 
+<!-- NEXT TICK -->
 
 <div class="card">
 
-<h3>What we are testing</h3>
+<h2>🧪 Next Tick Test</h2>
 
-<p class="info">
+<div
+id="result"
+class="result">
 
-<strong>Test 1:</strong><br>
-Current Deriv public endpoint
+WAITING
 
-<br><br>
+</div>
 
-<strong>Test 2:</strong><br>
-Legacy Deriv public endpoint
 
-<br><br>
+<div
+id="resultInfo"
+class="info"
+style="margin-top:10px">
 
-If both fail with 1006, we'll stop changing
-the bot code and troubleshoot the network/browser
-connection.
+The next live tick will test the current prediction.
 
-</p>
+</div>
+
+</div>
+
+
+<!-- PERFORMANCE -->
+
+<div class="card">
+
+<h2>📊 Paper Performance</h2>
+
+<div class="row">
+
+<div class="stat">
+
+<div class="small">
+TESTED
+</div>
+
+<div
+id="total"
+class="value">
+
+0
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+MATCHES
+</div>
+
+<div
+id="wins"
+class="value">
+
+0
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+MISSES
+</div>
+
+<div
+id="losses"
+class="value">
+
+0
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+ACCURACY
+</div>
+
+<div
+id="accuracy"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+WIN STREAK
+</div>
+
+<div
+id="streak"
+class="value">
+
+0
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+BEST STREAK
+</div>
+
+<div
+id="best"
+class="value">
+
+0
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="bar">
+
+<div
+id="accuracyBar"
+class="fill"
+style="width:0%">
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ANALYSIS -->
+
+<div class="card">
+
+<h2>📈 Digit Analysis</h2>
+
+<div class="row">
+
+<div class="stat">
+
+<div class="small">
+HOT DIGIT
+</div>
+
+<div
+id="hot"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+COLD DIGIT
+</div>
+
+<div
+id="cold"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+LAST DIGIT
+</div>
+
+<div
+id="last"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+EVEN
+</div>
+
+<div
+id="even"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+ODD
+</div>
+
+<div
+id="odd"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+OVER 5
+</div>
+
+<div
+id="over"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="small">
+UNDER 5
+</div>
+
+<div
+id="under"
+class="value">
+
+—
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+id="windows"
+class="info"
+style="margin-top:12px">
+
+</div>
+
+</div>
+
+
+<!-- HISTORY -->
+
+<div class="card">
+
+<h2>📋 Last Predictions</h2>
+
+<div
+id="history"
+class="history">
+
+No paper results yet.
+
+</div>
+
+</div>
+
+
+<!-- WARNING -->
+
+<div class="card footer">
+
+<strong>Important:</strong>
+
+The Strength percentage is a model score,
+not a guaranteed probability of winning.
+
+An exact digit has a 10% random baseline.
+
+This version records actual next-tick outcomes
+so we can test whether the model performs better
+than that baseline.
+
+No real-money trades are placed by this page.
 
 </div>
 
@@ -200,272 +711,357 @@ connection.
 
 <script>
 
-/* =========================================
-   ENDPOINTS
-========================================= */
 
-const CURRENT_ENDPOINT =
+/* ==========================================
+   DERIV CONNECTION
+========================================== */
+
+const WS_URL =
 "wss://api.derivws.com/trading/v1/options/ws/public";
 
 
-const LEGACY_ENDPOINT =
-"wss://ws.binaryws.com/websockets/v3";
-
+/* ==========================================
+   GLOBAL VARIABLES
+========================================== */
 
 let ws = null;
 
-let testNumber = 0;
+let running = false;
 
-let timeout = null;
+let digits = [];
 
+let maxWindow = 250;
 
-/* =========================================
-   LOG
-========================================= */
+let pending = null;
 
-function log(
-message,
-type="info"
-){
+let tickCount = 0;
 
-    const box =
-        document.getElementById(
-            "log"
-        );
+let precision = 2;
 
 
-    const line =
-        document.createElement(
-            "div"
-        );
+/* RESULTS */
+
+let wins = 0;
+
+let losses = 0;
+
+let streak = 0;
+
+let best = 0;
+
+let history = [];
 
 
-    line.className =
-        "line " +
-        type;
+/* MARKET NAMES */
+
+const names = {
+
+    "1HZ10V":
+    "Volatility 10 Index",
+
+    "1HZ25V":
+    "Volatility 25 Index",
+
+    "1HZ50V":
+    "Volatility 50 Index",
+
+    "1HZ75V":
+    "Volatility 75 Index",
+
+    "1HZ100V":
+    "Volatility 100 Index"
+
+};
 
 
-    line.textContent =
-        "[" +
-        new Date()
-        .toLocaleTimeString() +
-        "] " +
-        message;
+/* ==========================================
+   SHORTCUT
+========================================== */
 
+function $(id){
 
-    box.appendChild(
-        line
-    );
-
-
-    box.scrollTop =
-        box.scrollHeight;
-
-}
-
-
-/* =========================================
-   STATUS
-========================================= */
-
-function setStatus(
-message,
-type=""
-){
-
-    const box =
-        document.getElementById(
-            "status"
-        );
-
-
-    box.textContent =
-        "Status: " +
-        message;
-
-
-    box.className =
-        "status " +
-        type;
+    return document.getElementById(id);
 
 }
 
 
-/* =========================================
-   START
-========================================= */
+/* ==========================================
+   PERCENTAGE
+========================================== */
 
-function startDiagnostic(){
+function pct(
+    a,
+    b
+){
 
-    document.getElementById(
-        "log"
-    ).innerHTML = "";
+    if(!b){
 
+        return 0;
 
-    document.getElementById(
-        "lastTick"
-    ).textContent =
-        "—";
+    }
 
-
-    document.getElementById(
-        "start"
-    ).disabled =
-        true;
-
-
-    testNumber = 1;
-
-
-    log(
-        "Starting WebSocket diagnostic..."
-    );
-
-
-    log(
-        "Testing current Deriv endpoint."
-    );
-
-
-    testEndpoint(
-        CURRENT_ENDPOINT,
-        1
+    return (
+        a /
+        b *
+        100
     );
 
 }
 
 
-/* =========================================
-   TEST ENDPOINT
-========================================= */
+/* ==========================================
+   FORMAT %
+========================================== */
 
-function testEndpoint(
-endpoint,
-number
+function fmtPct(
+    value
 ){
 
-    if(ws){
+    return value.toFixed(1) + "%";
 
-        try{
-            ws.close();
-        }catch(e){}
+}
+
+
+/* ==========================================
+   COUNT DIGITS
+========================================== */
+
+function counts(
+    data
+){
+
+    const c =
+        Array(10).fill(0);
+
+
+    data.forEach(
+        function(d){
+
+            c[d]++;
+
+        }
+    );
+
+
+    return c;
+
+}
+
+
+/* ==========================================
+   MOST FREQUENT
+========================================== */
+
+function top(
+    c
+){
+
+    let bestDigit = 0;
+
+
+    for(
+        let i=1;
+        i<10;
+        i++
+    ){
+
+        if(
+            c[i] >
+            c[bestDigit]
+        ){
+
+            bestDigit = i;
+
+        }
 
     }
 
 
-    if(timeout){
+    return bestDigit;
 
-        clearTimeout(
-            timeout
-        );
+}
+
+
+/* ==========================================
+   EXTRACT LAST DIGIT
+========================================== */
+
+function digitFromQuote(
+    quote,
+    pipSize
+){
+
+    let decimalPlaces = 2;
+
+
+    /*
+       New Deriv tick responses may omit
+       pip_size, so we handle both cases.
+    */
+
+    if(
+        Number.isInteger(
+            pipSize
+        )
+    ){
+
+        decimalPlaces =
+            pipSize;
 
     }
 
+    else if(
+        typeof pipSize ===
+        "number" &&
+        pipSize > 0 &&
+        pipSize < 1
+    ){
 
-    setStatus(
-        "TEST " +
-        number +
-        " - CONNECTING...",
-        "yellow"
-    );
-
-
-    log(
-        "Opening endpoint " +
-        number +
-        ":",
-        "info"
-    );
-
-
-    log(
-        endpoint,
-        "info"
-    );
-
-
-    try{
-
-        ws =
-            new WebSocket(
-                endpoint
+        decimalPlaces =
+            Math.max(
+                0,
+                Math.round(
+                    -Math.log10(
+                        pipSize
+                    )
+                )
             );
 
     }
 
-    catch(error){
+    else if(
+        typeof quote ===
+        "string" &&
+        quote.includes(".")
+    ){
 
-        log(
-            "Browser could not create WebSocket.",
-            "error"
-        );
-
-
-        nextTest();
-
-        return;
+        decimalPlaces =
+            quote
+            .split(".")[1]
+            .length;
 
     }
 
 
-    /*
-       Give the handshake 8 seconds.
-    */
-
-    timeout =
-        setTimeout(
-            function(){
-
-                log(
-                    "Connection timeout.",
-                    "error"
-                );
+    precision =
+        decimalPlaces;
 
 
-                try{
-                    ws.close();
-                }catch(e){}
-
-
-                nextTest();
-
-            },
-            8000
+    const formatted =
+        Number(quote)
+        .toFixed(
+            decimalPlaces
         );
 
 
-    /* =====================================
-       OPEN
-    ===================================== */
+    const clean =
+        formatted.replace(
+            /\D/g,
+            ""
+        );
+
+
+    return Number(
+        clean[
+            clean.length - 1
+        ]
+    );
+
+}
+
+
+/* ==========================================
+   STATUS
+========================================== */
+
+function setStatus(
+    text,
+    type=""
+){
+
+    $("status").textContent =
+        "Status: " + text;
+
+
+    $("status").className =
+        "status " + type;
+
+}
+
+
+/* ==========================================
+   START
+========================================== */
+
+function startBot(){
+
+    stopBot();
+
+
+    digits = [];
+
+    pending = null;
+
+    tickCount = 0;
+
+    maxWindow =
+        Number(
+            $("window").value
+        );
+
+
+    running = true;
+
+
+    $("marketName").textContent =
+        names[
+            $("symbol").value
+        ];
+
+
+    $("ticks").textContent =
+        "0";
+
+
+    $("prediction").textContent =
+        "—";
+
+
+    $("strength").textContent =
+        "Strength: —";
+
+
+    $("signal").textContent =
+        "Waiting for data...";
+
+
+    $("signal").className =
+        "signal muted";
+
+
+    setStatus(
+        "CONNECTING...",
+        "warn"
+    );
+
+
+    ws =
+        new WebSocket(
+            WS_URL
+        );
+
 
     ws.onopen =
     function(){
 
-        clearTimeout(
-            timeout
-        );
-
-
         setStatus(
-            "CONNECTED - TEST " +
-            number,
-            "green"
+            "CONNECTED — STARTING LIVE STREAM",
+            "good"
         );
 
 
-        log(
-            "SUCCESS: WebSocket connected!",
-            "success"
-        );
-
-
-        /*
-           Now send a very simple tick request.
-        */
-
-        log(
-            "Requesting live tick data..."
-        );
+        const symbol =
+            $("symbol").value;
 
 
         ws.send(
@@ -473,13 +1069,13 @@ number
             JSON.stringify({
 
                 ticks:
-                    "1HZ10V",
+                    symbol,
 
                 subscribe:
                     1,
 
                 req_id:
-                    100 + number
+                    1
 
             })
 
@@ -487,10 +1083,6 @@ number
 
     };
 
-
-    /* =====================================
-       MESSAGE
-    ===================================== */
 
     ws.onmessage =
     function(event){
@@ -509,29 +1101,24 @@ number
 
         catch(error){
 
-            log(
-                "Received non-JSON response.",
-                "error"
-            );
-
             return;
 
         }
 
 
-        if(data.error){
+        if(
+            data.error
+        ){
 
-            log(
-                "Deriv API error: " +
-                (
-                    data.error.message ||
-                    JSON.stringify(
-                        data.error
-                    )
-                ),
-                "error"
+            setStatus(
+                "API ERROR",
+                "bad"
             );
 
+
+            $("resultInfo").textContent =
+                data.error.message ||
+                "Deriv API error.";
 
             return;
 
@@ -540,122 +1127,42 @@ number
 
         if(
             data.msg_type ===
-            "tick"
+            "tick" &&
+            data.tick
         ){
 
-            const quote =
-                data.tick.quote;
-
-
-            document.getElementById(
-                "lastTick"
-            ).textContent =
-                quote;
-
-
-            setStatus(
-                "🎉 CONNECTION WORKING!",
-                "green"
+            handleTick(
+                data.tick
             );
-
-
-            log(
-                "LIVE TICK RECEIVED: " +
-                quote,
-                "success"
-            );
-
-
-            log(
-                "Endpoint " +
-                number +
-                " is WORKING.",
-                "success"
-            );
-
-
-            log(
-                "We can now put the predictor back.",
-                "success"
-            );
-
-
-            document.getElementById(
-                "start"
-            ).disabled =
-                false;
-
-
-            /*
-               Stop after successful test.
-            */
-
-            return;
 
         }
 
     };
 
 
-    /* =====================================
-       ERROR
-    ===================================== */
-
     ws.onerror =
     function(){
 
-        clearTimeout(
-            timeout
-        );
-
-
-        log(
-            "WebSocket error on test " +
-            number,
-            "error"
+        setStatus(
+            "WEBSOCKET ERROR",
+            "bad"
         );
 
     };
 
 
-    /* =====================================
-       CLOSE
-    ===================================== */
-
     ws.onclose =
     function(event){
 
-        clearTimeout(
-            timeout
-        );
-
-
-        log(
-            "Connection closed.",
-            "error"
-        );
-
-
-        log(
-            "Close code: " +
-            event.code,
-            "error"
-        );
-
-
-        /*
-           Only continue if we haven't
-           received a working tick.
-        */
-
         if(
-            document.getElementById(
-                "lastTick"
-            ).textContent ===
-            "—"
+            running
         ){
 
-            nextTest();
+            setStatus(
+                "DISCONNECTED — CODE " +
+                event.code,
+                "bad"
+            );
 
         }
 
@@ -664,85 +1171,1043 @@ number
 }
 
 
-/* =========================================
-   NEXT TEST
-========================================= */
+/* ==========================================
+   STOP
+========================================== */
 
-function nextTest(){
+function stopBot(){
+
+    running = false;
+
+
+    if(ws){
+
+        try{
+
+            ws.close();
+
+        }
+
+        catch(error){}
+
+        ws = null;
+
+    }
+
+}
+
+
+/* ==========================================
+   LIVE TICK
+========================================== */
+
+function handleTick(
+    tick
+){
+
+    const quote =
+        tick.quote;
+
+
+    const digit =
+        digitFromQuote(
+            quote,
+            tick.pip_size
+        );
+
+
+    tickCount++;
+
+
+    $("ticks").textContent =
+        tickCount;
+
+
+    /*
+       Test the previous prediction
+       against THIS tick.
+    */
 
     if(
-        testNumber === 1
+        pending !== null
     ){
 
-        testNumber = 2;
-
-
-        log(
-            "--------------------------------"
+        evaluate(
+            pending,
+            digit
         );
 
-
-        log(
-            "Test 1 failed."
-        );
+    }
 
 
-        log(
-            "Trying legacy Deriv endpoint...",
-            "warning"
-        );
+    /*
+       Add current digit.
+    */
+
+    digits.push(
+        digit
+    );
 
 
-        testEndpoint(
-            LEGACY_ENDPOINT,
-            2
-        );
+    /*
+       Maintain rolling window.
+    */
 
+    if(
+        digits.length >
+        maxWindow
+    ){
+
+        digits.shift();
+
+    }
+
+
+    $("last").textContent =
+        digit;
+
+
+    updateAnalysis();
+
+
+    /*
+       Start predicting after enough data.
+    */
+
+    if(
+        digits.length >= 50
+    ){
+
+        makePrediction();
+
+    }
+
+
+    setStatus(
+        "LIVE — RECEIVING TICKS",
+        "good"
+    );
+
+}
+
+
+/* ==========================================
+   MARKET ANALYSIS
+========================================== */
+
+function updateAnalysis(){
+
+    if(
+        digits.length === 0
+    ){
 
         return;
 
     }
 
 
+    const c =
+        counts(
+            digits
+        );
+
+
+    const hot =
+        top(c);
+
+
+    let cold = 0;
+
+
+    for(
+        let i=1;
+        i<10;
+        i++
+    ){
+
+        if(
+            c[i] <
+            c[cold]
+        ){
+
+            cold = i;
+
+        }
+
+    }
+
+
+    const even =
+        digits.filter(
+            function(d){
+
+                return d % 2 === 0;
+
+            }
+        ).length;
+
+
+    const odd =
+        digits.length -
+        even;
+
+
+    const over =
+        digits.filter(
+            function(d){
+
+                return d > 5;
+
+            }
+        ).length;
+
+
+    const under =
+        digits.filter(
+            function(d){
+
+                return d < 5;
+
+            }
+        ).length;
+
+
+    $("hot").textContent =
+        hot +
+        " (" +
+        fmtPct(
+            pct(
+                c[hot],
+                digits.length
+            )
+        ) +
+        ")";
+
+
+    $("cold").textContent =
+        cold +
+        " (" +
+        fmtPct(
+            pct(
+                c[cold],
+                digits.length
+            )
+        ) +
+        ")";
+
+
+    $("even").textContent =
+        fmtPct(
+            pct(
+                even,
+                digits.length
+            )
+        );
+
+
+    $("odd").textContent =
+        fmtPct(
+            pct(
+                odd,
+                digits.length
+            )
+        );
+
+
+    $("over").textContent =
+        fmtPct(
+            pct(
+                over,
+                digits.length
+            )
+        );
+
+
+    $("under").textContent =
+        fmtPct(
+            pct(
+                under,
+                digits.length
+            )
+        );
+
+
     /*
-       Both failed.
+       Window comparison.
     */
 
-    setStatus(
-        "BOTH CONNECTIONS FAILED",
-        "red"
+    let html = "";
+
+
+    [
+        10,
+        25,
+        50,
+        100,
+        250
+    ].forEach(
+        function(n){
+
+            if(
+                digits.length >= n
+            ){
+
+                const data =
+                    digits.slice(
+                        -n
+                    );
+
+
+                const cc =
+                    counts(
+                        data
+                    );
+
+
+                const winner =
+                    top(cc);
+
+
+                html +=
+
+                    "<div style='margin-top:6px'>" +
+
+                    "Last " +
+                    n +
+                    " → Digit <strong>" +
+                    winner +
+                    "</strong> at " +
+
+                    fmtPct(
+                        pct(
+                            cc[winner],
+                            n
+                        )
+                    ) +
+
+                    "</div>";
+
+            }
+
+        }
     );
 
 
-    log(
-        "--------------------------------"
-    );
-
-
-    log(
-        "BOTH DERIV WEBSOCKET ENDPOINTS FAILED.",
-        "error"
-    );
-
-
-    log(
-        "This is no longer a predictor-code problem.",
-        "error"
-    );
-
-
-    log(
-        "Next we will test your iPhone/network.",
-        "warning"
-    );
-
-
-    document.getElementById(
-        "start"
-    ).disabled =
-        false;
+    $("windows").innerHTML =
+        html;
 
 }
+
+
+/* ==========================================
+   PREDICTION ENGINE
+========================================== */
+
+function makePrediction(){
+
+    const sizes =
+        [
+            10,
+            25,
+            50,
+            100,
+            250
+        ].filter(
+            function(n){
+
+                return digits.length >= n;
+
+            }
+        );
+
+
+    const scores =
+        Array(10).fill(0);
+
+
+    const agreement =
+        Array(10).fill(0);
+
+
+    /*
+       Analyze multiple windows.
+    */
+
+    sizes.forEach(
+        function(n){
+
+            const data =
+                digits.slice(
+                    -n
+                );
+
+
+            const c =
+                counts(
+                    data
+                );
+
+
+            const winner =
+                top(c);
+
+
+            agreement[
+                winner
+            ]++;
+
+
+            let weight = 1;
+
+
+            if(n === 10)
+                weight = 5;
+
+            else if(n === 25)
+                weight = 4;
+
+            else if(n === 50)
+                weight = 3;
+
+            else if(n === 100)
+                weight = 2;
+
+
+            /*
+               10% is the baseline for
+               an exact digit.
+            */
+
+            for(
+                let d=0;
+                d<10;
+                d++
+            ){
+
+                const frequency =
+                    pct(
+                        c[d],
+                        n
+                    );
+
+
+                if(
+                    frequency > 10
+                ){
+
+                    scores[d] +=
+
+                        (
+                            frequency -
+                            10
+                        ) *
+
+                        weight;
+
+                }
+
+            }
+
+        }
+    );
+
+
+    /*
+       Recent data gets extra weight.
+    */
+
+    const recent =
+        digits.slice(
+            -25
+        );
+
+
+    const recentCounts =
+        counts(
+            recent
+        );
+
+
+    for(
+        let d=0;
+        d<10;
+        d++
+    ){
+
+        const frequency =
+            pct(
+                recentCounts[d],
+                recent.length
+            );
+
+
+        if(
+            frequency > 10
+        ){
+
+            scores[d] +=
+
+                (
+                    frequency -
+                    10
+                ) *
+
+                2;
+
+        }
+
+    }
+
+
+    /*
+       Agreement bonus.
+    */
+
+    for(
+        let d=0;
+        d<10;
+        d++
+    ){
+
+        scores[d] +=
+            agreement[d] *
+            7;
+
+    }
+
+
+    /*
+       Rank digits.
+    */
+
+    const ranking =
+        scores
+        .map(
+            function(score,digit){
+
+                return {
+
+                    digit:
+                        digit,
+
+                    score:
+                        score,
+
+                    agreement:
+                        agreement[digit]
+
+                };
+
+            }
+        )
+        .sort(
+            function(a,b){
+
+                return (
+                    b.score -
+                    a.score
+                );
+
+            }
+        );
+
+
+    const best =
+        ranking[0];
+
+
+    const second =
+        ranking[1];
+
+
+    /*
+       Calculate model strength.
+    */
+
+    const separation =
+        Math.max(
+            0,
+            best.score -
+            second.score
+        );
+
+
+    const allCounts =
+        counts(
+            digits
+        );
+
+
+    const historicalFrequency =
+        pct(
+            allCounts[
+                best.digit
+            ],
+            digits.length
+        );
+
+
+    const recentFrequency =
+        pct(
+            recentCounts[
+                best.digit
+            ],
+            recent.length
+        );
+
+
+    let strength = 20;
+
+
+    strength +=
+        best.agreement *
+        10;
+
+
+    strength +=
+        Math.min(
+            25,
+            separation * 2
+        );
+
+
+    strength +=
+        Math.min(
+            15,
+            Math.max(
+                0,
+                recentFrequency -
+                10
+            ) * 1.5
+        );
+
+
+    strength +=
+        Math.min(
+            10,
+            Math.max(
+                0,
+                historicalFrequency -
+                10
+            )
+        );
+
+
+    strength =
+        Math.max(
+            5,
+            Math.min(
+                95,
+                strength
+            )
+        );
+
+
+    /*
+       Save prediction.
+
+       It is tested against the
+       NEXT tick.
+    */
+
+    pending =
+        best.digit;
+
+
+    $("prediction").textContent =
+        best.digit;
+
+
+    $("strength").textContent =
+        "Strength: " +
+        strength.toFixed(1) +
+        "%";
+
+
+    let signal =
+        "🔴 WEAK";
+
+
+    let className =
+        "red";
+
+
+    if(
+        strength >= 70 &&
+        best.agreement >= 3
+    ){
+
+        signal =
+            "🟢 STRONG";
+
+
+        className =
+            "green";
+
+    }
+
+    else if(
+        strength >= 55
+    ){
+
+        signal =
+            "🟡 WATCH";
+
+
+        className =
+            "yellow";
+
+    }
+
+
+    $("signal").textContent =
+        signal;
+
+
+    $("signal").className =
+        "signal " +
+        className;
+
+
+    $("predInfo").innerHTML =
+
+        "Selected from " +
+
+        sizes.length +
+
+        " rolling windows.<br>" +
+
+        "Historical frequency: " +
+
+        fmtPct(
+            historicalFrequency
+        ) +
+
+        "<br>" +
+
+        "Recent 25-tick frequency: " +
+
+        fmtPct(
+            recentFrequency
+        ) +
+
+        "<br>" +
+
+        "Window agreement: " +
+
+        best.agreement +
+
+        "/" +
+
+        sizes.length +
+
+        "<br><br>" +
+
+        "⏳ Waiting for the next tick to test it.";
+
+}
+
+
+/* ==========================================
+   EVALUATE PREDICTION
+========================================== */
+
+function evaluate(
+    predicted,
+    actual
+){
+
+    const won =
+        predicted ===
+        actual;
+
+
+    if(won){
+
+        wins++;
+
+        streak++;
+
+
+        if(
+            streak >
+            best
+        ){
+
+            best =
+                streak;
+
+        }
+
+    }
+
+    else{
+
+        losses++;
+
+        streak = 0;
+
+    }
+
+
+    history.unshift({
+
+        predicted:
+            predicted,
+
+        actual:
+            actual,
+
+        result:
+            won
+            ?
+            "MATCH"
+            :
+            "MISS",
+
+        time:
+            new Date()
+            .toLocaleTimeString()
+
+    });
+
+
+    /*
+       Keep last 50.
+    */
+
+    if(
+        history.length > 50
+    ){
+
+        history.pop();
+
+    }
+
+
+    pending =
+        null;
+
+
+    /*
+       Display result.
+    */
+
+    if(won){
+
+        $("result").textContent =
+            "✅ MATCH";
+
+
+        $("result").className =
+            "result green";
+
+
+        $("resultInfo").textContent =
+
+            "Predicted " +
+            predicted +
+            " · Actual " +
+            actual +
+            " · Correct next-tick match.";
+
+    }
+
+    else{
+
+        $("result").textContent =
+            "❌ MISS";
+
+
+        $("result").className =
+            "result red";
+
+
+        $("resultInfo").textContent =
+
+            "Predicted " +
+            predicted +
+            " · Actual " +
+            actual +
+            " · Prediction missed.";
+
+    }
+
+
+    updatePerformance();
+
+    renderHistory();
+
+}
+
+
+/* ==========================================
+   PERFORMANCE
+========================================== */
+
+function updatePerformance(){
+
+    const total =
+        wins +
+        losses;
+
+
+    const accuracy =
+        pct(
+            wins,
+            total
+        );
+
+
+    $("total").textContent =
+        total;
+
+
+    $("wins").textContent =
+        wins;
+
+
+    $("losses").textContent =
+        losses;
+
+
+    $("accuracy").textContent =
+        total
+        ?
+        fmtPct(
+            accuracy
+        )
+        :
+        "—";
+
+
+    $("streak").textContent =
+        streak;
+
+
+    $("best").textContent =
+        best;
+
+
+    $("accuracyBar").style.width =
+        Math.min(
+            100,
+            accuracy
+        ) +
+        "%";
+
+}
+
+
+/* ==========================================
+   HISTORY
+========================================== */
+
+function renderHistory(){
+
+    if(
+        !history.length
+    ){
+
+        $("history").innerHTML =
+            "No paper results yet.";
+
+        return;
+
+    }
+
+
+    $("history").innerHTML =
+
+        history
+        .map(
+            function(item,index){
+
+                return
+
+                    "<div class='hrow'>" +
+
+                    "<div>#" +
+                    (
+                        history.length -
+                        index
+                    ) +
+                    "</div>" +
+
+                    "<div>P: <strong>" +
+                    item.predicted +
+                    "</strong></div>" +
+
+                    "<div>A: <strong>" +
+                    item.actual +
+                    "</strong></div>" +
+
+                    "<div class='" +
+
+                    (
+                        item.result ===
+                        "MATCH"
+                        ?
+                        "green"
+                        :
+                        "red"
+                    ) +
+
+                    "'>" +
+
+                    item.result +
+
+                    " · " +
+
+                    item.time +
+
+                    "</div>" +
+
+                    "</div>";
+
+            }
+        )
+        .join("");
+
+}
+
+
+/* ==========================================
+   MARKET CHANGE
+========================================== */
+
+$("symbol")
+.addEventListener(
+    "change",
+    function(){
+
+        if(running){
+
+            startBot();
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   WINDOW CHANGE
+========================================== */
+
+$("window")
+.addEventListener(
+    "change",
+    function(){
+
+        if(running){
+
+            startBot();
+
+        }
+
+    }
+);
 
 </script>
 
